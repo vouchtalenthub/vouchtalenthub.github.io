@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vouch - Internal Talent Marketplace</title>
+  <meta name="description" content="Vouch is an internal talent marketplace prototype where employees discover internal projects and managers staff them with peer-vouched talent. Designed and built by Shivani Kalmane.">
+  <meta name="author" content="Shivani Kalmane">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%238b74b0'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://vouchtalenthub.github.io/">
+  <meta property="og:title" content="Vouch - Internal Talent Marketplace">
+  <meta property="og:description" content="A clickable prototype for internal mobility: employees find stretch projects, managers staff them with peer-vouched talent.">
+  <meta property="og:image" content="https://vouchtalenthub.github.io/preview.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --mauve-50: #f9f7fc;
+  --mauve-100: #f0ebf8;
+  --mauve-200: #e6ddf2;
+  --mauve-300: #d4c5e8;
+  --mauve-400: #a384c3;
+  --mauve-500: #9d84b7;
+  --mauve-600: #8b7aa8;
+  --mauve-700: #6f5f8f;
+  --text-primary: #1a1a2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #7a7a9a;
+  --bg: #fafbfd;
+  --surface: #ffffff;
+  --border: #e0d9f0;
+  --success: #10b981;
+  --shadow-sm: 0 1px 2px rgba(157, 132, 183, 0.05);
+  --shadow: 0 4px 12px rgba(157, 132, 183, 0.15);
+  --shadow-lg: 0 12px 32px rgba(157, 132, 183, 0.2);
+}
+
+[data-theme="dark"] {
+  --mauve-50: #1e1a2e;
+  --mauve-100: #2a2340;
+  --mauve-200: #352c52;
+  --mauve-300: #4a3d6e;
+  --mauve-400: #7a60a8;
+  --mauve-500: #9d84b7;
+  --mauve-600: #b8a0d0;
+  --mauve-700: #d4c0e8;
+  --text-primary: #f0ebf8;
+  --text-secondary: #c4b8d8;
+  --text-muted: #8a7aa8;
+  --bg: #12101e;
+  --surface: #1a1630;
+  --border: #2e2650;
+  --success: #34d399;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow: 0 4px 12px rgba(0,0,0,0.3);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.4);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 32px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
+}
+
+.logo { font-size: 26px; font-weight: 900; color: var(--mauve-600); display: flex; align-items: center; gap: 10px; letter-spacing: -0.5px; }
+.logo-dot { width: 13px; height: 13px; background: var(--mauve-500); border-radius: 50%; }
+.theme-toggle { width: 36px; height: 36px; border-radius: 50%; border: 1.5px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; transition: all .2s; }
+.theme-toggle:hover { background: var(--mauve-100); border-color: var(--mauve-400); }
+
+.topbar-right { display: flex; align-items: center; gap: 20px; }
+
+.nav-links { display: flex; gap: 24px; }
+.nav-link { color: var(--text-secondary); text-decoration: none; font-weight: 500; font-size: 14px; cursor: pointer; transition: color .2s; }
+.nav-link:hover { color: var(--mauve-600); }
+
+.persona-switch { display: flex; gap: 8px; background: var(--mauve-100); padding: 4px; border-radius: 8px; }
+.persona-btn { padding: 6px 16px; border: none; background: none; cursor: pointer; border-radius: 6px; font-weight: 600; font-size: 13px; color: var(--text-secondary); transition: all .2s; }
+.persona-btn.active { background: var(--surface); color: var(--mauve-600); box-shadow: var(--shadow-sm); }
+
+.main { flex: 1; padding: 40px 32px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+.page { display: none; }
+.page.active { display: block; }
+
+.page-header { margin-bottom: 32px; }
+.page-header h1 { font-size: 28px; font-weight: 800; color: var(--text-primary); margin-bottom: 8px; }
+.page-header p { font-size: 15px; color: var(--text-secondary); }
+
+/* AI Recommendations */
+.ai-recommendations {
+  background: linear-gradient(135deg, var(--mauve-100) 0%, var(--mauve-50) 100%);
+  border: 1px solid var(--mauve-200);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.ai-header { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 16px; font-weight: 700; color: var(--mauve-700); }
+.ai-recommendations-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.ai-rec-card { background: var(--surface); padding: 14px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: all .2s; }
+.ai-rec-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--mauve-400); }
+.ai-rec-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.ai-rec-match { font-size: 12px; color: var(--mauve-600); font-weight: 600; }
+
+/* Filters */
+.filters-bar { display: flex; gap: 12px; margin-bottom: 28px; flex-wrap: wrap; }
+.filter-group { display: flex; align-items: center; gap: 8px; }
+.filter-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.filter-input, .filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+}
+.filter-input:focus, .filter-select:focus { outline: none; border-color: var(--mauve-400); box-shadow: 0 0 0 3px var(--mauve-100); }
+
+/* Job Cards Grid */
+.jobs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 32px; }
+.job-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all .3s;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+}
+
+.job-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow);
+  border-color: var(--mauve-400);
+}
+
+.job-header { margin-bottom: 12px; }
+.job-title { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.job-company { font-size: 13px; color: var(--text-secondary); }
+.job-meta { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+.badge { display: inline-block; padding: 4px 10px; background: var(--mauve-100); color: var(--mauve-700); border-radius: 6px; font-size: 11px; font-weight: 600; }
+.job-description { font-size: 13px; color: var(--text-secondary); margin: 12px 0; line-height: 1.4; flex: 1; }
+.job-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+.apply-btn { padding: 8px 16px; background: var(--mauve-600); color: white; border: none; border-radius: 6px; font-weight: 600; font-size: 13px; cursor: pointer; transition: all .2s; }
+.apply-btn:hover { background: var(--mauve-700); }
+.match-score { font-size: 12px; font-weight: 700; color: var(--mauve-600); }
+
+/* Pagination */
+.pagination { display: flex; justify-content: center; gap: 8px; margin-top: 32px; }
+.pagination-btn {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  transition: all .2s;
+}
+.pagination-btn:hover { border-color: var(--mauve-400); color: var(--mauve-600); }
+.pagination-btn.active { background: var(--mauve-600); color: white; border-color: var(--mauve-600); }
+
+/* Modal */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 32px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn .3s ease;
+}
+@keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+.modal-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+.form-group { margin-bottom: 16px; }
+.form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 6px; }
+.form-textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  resize: none;
+  color: var(--text-primary);
+}
+.form-textarea:focus { outline: none; border-color: var(--mauve-400); box-shadow: 0 0 0 3px var(--mauve-100); }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px; }
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.btn-primary { background: var(--mauve-600); color: white; }
+.btn-primary:hover { background: var(--mauve-700); }
+.btn-secondary { background: var(--mauve-100); color: var(--mauve-700); }
+.btn-secondary:hover { background: var(--mauve-200); }
+
+/* Profile Page */
+.profile-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+}
+.profile-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-primary); }
+.profile-section { margin-bottom: 20px; }
+.profile-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+.cv-upload { border: 2px dashed var(--border); padding: 20px; border-radius: 8px; text-align: center; cursor: pointer; transition: all .2s; }
+.cv-upload:hover { border-color: var(--mauve-400); background: var(--mauve-50); }
+.cv-upload p { font-size: 13px; color: var(--text-secondary); }
+.skills-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.skill-badge { padding: 6px 12px; background: var(--mauve-100); color: var(--mauve-700); border-radius: 6px; font-size: 12px; font-weight: 600; }
+.input-field { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 13px; font-family: 'Inter', sans-serif; }
+.input-field:focus { outline: none; border-color: var(--mauve-400); }
+
+/* Manager View */
+.manager-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.action-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all .2s;
+}
+.action-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+.action-icon { font-size: 32px; margin-bottom: 12px; }
+.action-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.action-desc { font-size: 13px; color: var(--text-secondary); }
+
+.listings-grid { display: grid; gap: 16px; }
+.listing-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employee-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all .2s;
+}
+
+.employee-card:hover {
+  box-shadow: var(--shadow);
+  border-color: var(--mauve-400);
+}
+.listing-info { flex: 1; }
+.listing-title { font-weight: 700; margin-bottom: 4px; }
+.listing-applicants { font-size: 13px; color: var(--text-secondary); }
+.listing-action { padding: 8px 16px; background: var(--mauve-600); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+
+.org-chart {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+.org-box { background: var(--mauve-100); padding: 12px; border-radius: 6px; margin-bottom: 12px; }
+.org-name { font-weight: 700; }
+.org-title { font-size: 12px; color: var(--text-secondary); }
+
+/* Login Page */
+.login-page {
+  display: none;
+  min-height: 100vh;
+  background: var(--bg);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.login-page.active { display: flex; }
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 48px 44px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+
+.login-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; }
+.login-logo-dot { width: 14px; height: 14px; background: var(--mauve-500); border-radius: 50%; }
+.login-logo-text { font-size: 30px; font-weight: 900; color: var(--mauve-600); letter-spacing: -0.5px; }
+.login-tagline { font-size: 14px; color: var(--text-muted); margin-bottom: 36px; }
+
+.login-persona-label { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+
+.login-persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+.login-persona-card {
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: all .2s;
+  background: var(--surface);
+  position: relative;
+}
+.login-persona-card:hover { border-color: var(--mauve-400); background: var(--mauve-50); }
+.login-persona-card.selected { border-color: var(--mauve-500); background: var(--mauve-50); }
+.login-persona-card.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 8px; right: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--mauve-600);
+}
+.login-persona-icon { font-size: 28px; margin-bottom: 8px; }
+.login-persona-name { font-size: 14px; font-weight: 700; color: var(--text-primary); margin-bottom: 2px; }
+.login-persona-desc { font-size: 11px; color: var(--text-muted); }
+
+.login-divider { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; color: var(--text-muted); font-size: 12px; }
+.login-divider::before, .login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.login-sso-btn {
+  width: 100%;
+  padding: 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all .2s;
+  margin-bottom: 12px;
+  font-family: 'Inter', sans-serif;
+}
+.login-sso-btn:hover { border-color: var(--mauve-400); background: var(--mauve-50); }
+
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: none;
+  background: var(--mauve-600);
+  color: white;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all .2s;
+  margin-top: 8px;
+  font-family: 'Inter', sans-serif;
+}
+.login-btn:hover { background: var(--mauve-700); transform: translateY(-1px); box-shadow: var(--shadow); }
+.login-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.login-footer { margin-top: 24px; font-size: 12px; color: var(--text-muted); }
+
+.logout-btn {
+  padding: 7px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: 'Inter', sans-serif;
+}
+.logout-btn:hover { border-color: #e57373; color: #e53935; background: #fff5f5; }
+
+.toast {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: #1a1a2e;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  z-index: 999;
+  opacity: 0;
+  transition: all .35s cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Hide topbar on login */
+.app.login-mode .topbar { display: none; }
+.app.login-mode .main { display: none; }
+
+@media (max-width: 900px) {
+  .profile-layout { grid-template-columns: 1fr; }
+  .jobs-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+  .topbar { padding: 0 16px; }
+  .main { padding: 20px 16px; }
+  .login-card { padding: 36px 24px; }
+}
+  </style>
+</head>
+<body>
+  <div class="app login-mode" id="app-root">
+
+    <!-- LOGIN PAGE -->
+    <div class="login-page active" id="login-page">
+      <div class="login-card">
+        <div class="login-logo">
+          <div class="login-logo-dot"></div>
+          <span class="login-logo-text">Vouch</span>
+        </div>
+        <p class="login-tagline">Internal Talent Marketplace</p>
+
+        <div class="login-persona-label">Sign in as</div>
+        <div class="login-persona-grid">
+          <div class="login-persona-card" id="login-card-employee" onclick="selectLoginPersona('employee')">
+            <div class="login-persona-icon">👤</div>
+            <div class="login-persona-name">Employee</div>
+            <div class="login-persona-desc">Browse & apply to internal opportunities</div>
+          </div>
+          <div class="login-persona-card" id="login-card-manager" onclick="selectLoginPersona('manager')">
+            <div class="login-persona-icon">📋</div>
+            <div class="login-persona-name">Manager</div>
+            <div class="login-persona-desc">Post roles & manage your team</div>
+          </div>
+        </div>
+
+        <div class="login-divider">or</div>
+
+        <button class="login-sso-btn" onclick="loginWithSSO()">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="1" y="1" width="7" height="7" rx="1.5" fill="#4285F4"/><rect x="10" y="1" width="7" height="7" rx="1.5" fill="#34A853"/><rect x="1" y="10" width="7" height="7" rx="1.5" fill="#FBBC05"/><rect x="10" y="10" width="7" height="7" rx="1.5" fill="#EA4335"/></svg>
+          Continue with SSO
+        </button>
+
+        <button class="login-btn" id="login-submit-btn" onclick="submitLogin()" disabled>
+          Sign In
+        </button>
+
+        <p class="login-footer">By signing in, you agree to your company's talent marketplace policies.</p>
+      </div>
+    </div>
+
+    <header class="topbar">
+      <div class="logo" onclick="goHome()" style="cursor: pointer;">
+        <div class="logo-dot"></div>
+        Vouch
+      </div>
+      <div class="topbar-right">
+        <div class="nav-links" style="align-items:center;">
+          <a class="nav-link" id="past-projects-link" onclick="goToPage('emp-past-projects')" style="display:none;">Past Projects</a>
+          <a class="nav-link" id="projects-link" onclick="goToPage('mgr-projects')" style="display:none;">Org & History</a>
+          <div id="profile-link" onclick="goToPage('emp-profile')" style="display:none; cursor:pointer; width:36px; height:36px; border-radius:50%; background:var(--mauve-500); color:white; font-weight:700; font-size:13px; align-items:center; justify-content:center;" title="Shivani Kalmane">SK</div>
+        </div>
+        <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle dark/light mode">🌙</button>
+        <button class="logout-btn" onclick="logout()" title="Sign out">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- EMPLOYEE HOME -->
+      <div id="page-emp-home" class="page active">
+        <div class="page-header">
+          <h1>Find Your Next Opportunity</h1>
+          <p>Discover internal projects that match your skills and interests</p>
+        </div>
+
+        <!-- AI Recommendations -->
+        <div class="ai-recommendations">
+          <div class="ai-header">🤖 AI-Matched Opportunities for You</div>
+          <div class="ai-recommendations-grid" id="ai-recs">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+          <div class="filter-group">
+            <label class="filter-label">Position:</label>
+            <select class="filter-select" id="filter-position" onchange="filterJobs()">
+              <option value="">All</option>
+              <option value="Design">Design</option>
+              <option value="Engineering">Engineering</option>
+              <option value="Product">Product</option>
+              <option value="Data">Data</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Location:</label>
+            <select class="filter-select" id="filter-location" onchange="filterJobs()">
+              <option value="">All</option>
+              <option value="New York">New York</option>
+              <option value="Remote">Remote</option>
+              <option value="San Francisco">San Francisco</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Skills:</label>
+            <input type="text" class="filter-input" id="filter-skills" placeholder="Search skills..." onkeyup="filterJobs()" style="width: 150px;">
+          </div>
+        </div>
+
+        <!-- Job Listings -->
+        <div class="jobs-grid" id="jobs-grid">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- EMPLOYEE PROFILE -->
+      <div id="page-emp-profile" class="page">
+        <div style="display:flex; align-items:center; gap:16px; margin-bottom:32px;">
+          <div style="width:64px; height:64px; border-radius:50%; background:var(--mauve-500); color:white; font-weight:800; font-size:22px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">SK</div>
+          <div>
+            <h1 style="font-size:24px; font-weight:800; margin-bottom:2px;">Shivani Kalmane</h1>
+            <p style="color:var(--text-secondary); font-size:14px;">Senior Product Designer &nbsp;·&nbsp; Product &nbsp;·&nbsp; Reports to Jane Doe</p>
+          </div>
+        </div>
+
+        <div class="profile-layout" style="grid-template-columns: 1fr; max-width: 800px;">
+
+          <!-- Manager Vouches -->
+          <div class="profile-card" style="border: 1.5px solid var(--mauve-300); background: linear-gradient(135deg, var(--mauve-50) 0%, white 100%);">
+            <h3 style="color:var(--mauve-700);">Manager Vouches</h3>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+              <div style="width:28px; height:28px; border-radius:50%; background:var(--mauve-400); color:white; font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center;">JD</div>
+              <span style="font-size:13px; color:var(--text-secondary);">Vouched by <strong>Jane Doe</strong>, Senior Manager of Product</span>
+            </div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px;" id="manager-endorsed-display">
+              <span style="background:var(--mauve-100); border:1px solid var(--mauve-400); color:var(--mauve-700); padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600;">✓ Product Design</span>
+              <span style="background:var(--mauve-100); border:1px solid var(--mauve-400); color:var(--mauve-700); padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600;">✓ Figma</span>
+              <span style="background:var(--mauve-100); border:1px solid var(--mauve-400); color:var(--mauve-700); padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600;">✓ User Research</span>
+              <span style="background:var(--mauve-100); border:1px solid var(--mauve-400); color:var(--mauve-700); padding:6px 14px; border-radius:20px; font-size:13px; font-weight:600;">✓ Prototyping</span>
+            </div>
+          </div>
+
+          <!-- Dev Goals from Manager -->
+          <div class="profile-card" id="emp-dev-goals-card" style="border:1.5px solid var(--mauve-300); background: linear-gradient(135deg, var(--mauve-50) 0%, white 100%);">
+            <h3 style="color:var(--mauve-700); margin-bottom:6px;">🎯 Development Goals</h3>
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+              <div style="width:28px; height:28px; border-radius:50%; background:var(--mauve-400); color:white; font-weight:700; font-size:11px; display:flex; align-items:center; justify-content:center;">JD</div>
+              <span style="font-size:13px; color:var(--text-secondary);">Set by <strong>Jane Doe</strong>, Senior Manager of Product</span>
+            </div>
+            <div id="emp-dev-goals-list"></div>
+          </div>
+
+          <!-- Resume Upload -->
+          <div class="profile-card">
+            <h3>📄 Resume</h3>
+            <div class="profile-section">
+              <div style="display:flex; align-items:center; gap:12px; padding:12px; background:var(--mauve-50); border:1px solid var(--mauve-200); border-radius:8px; margin-bottom:10px;">
+                <span style="font-size:24px;">📎</span>
+                <div>
+                  <div style="font-weight:600; font-size:13px;">Shivani_Kalmane_Resume_2024.pdf</div>
+                  <div style="font-size:12px; color:var(--text-muted);">Uploaded Jan 2025</div>
+                </div>
+              </div>
+              <div class="cv-upload" onclick="document.getElementById('cv-input').click()">
+                <input type="file" id="cv-input" style="display:none;" onchange="uploadCV()" accept=".pdf,.doc,.docx">
+                <p>📁 Replace resume</p>
+                <p style="font-size: 11px; margin-top: 4px;">PDF, DOC, or DOCX (Max 5MB)</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Current Position -->
+          <div class="profile-card">
+            <h3>💼 Current Position</h3>
+            <div class="profile-section">
+              <div class="profile-label">Job Title</div>
+              <input type="text" class="input-field" id="job-title" value="Senior Product Designer">
+            </div>
+            <div class="profile-section">
+              <div class="profile-label">Department</div>
+              <input type="text" class="input-field" id="department" value="Product">
+            </div>
+            <div class="profile-section">
+              <div class="profile-label">Years of Experience</div>
+              <input type="number" class="input-field" id="experience" value="6" min="0">
+            </div>
+          </div>
+
+          <!-- Skills -->
+          <div class="profile-card">
+            <h3>🎯 My Skills</h3>
+            <div class="profile-section">
+              <div class="profile-label">Self-Declared Skills</div>
+              <div class="skills-list" id="all-skills" style="margin-bottom: 12px;">
+                <span class="skill-badge">Product Design <span onclick="removeSkill('Product Design')" style="margin-left:6px; cursor:pointer;">✕</span></span>
+                <span class="skill-badge">Figma <span onclick="removeSkill('Figma')" style="margin-left:6px; cursor:pointer;">✕</span></span>
+                <span class="skill-badge">User Research <span onclick="removeSkill('User Research')" style="margin-left:6px; cursor:pointer;">✕</span></span>
+                <span class="skill-badge">Prototyping <span onclick="removeSkill('Prototyping')" style="margin-left:6px; cursor:pointer;">✕</span></span>
+                <span class="skill-badge">Design Systems <span onclick="removeSkill('Design Systems')" style="margin-left:6px; cursor:pointer;">✕</span></span>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <input type="text" class="input-field" id="skill-input" placeholder="Add a skill and press Enter" style="flex:1;" onkeypress="addSkill(event)">
+                <button class="btn btn-primary" onclick="addSkillBtn()" style="padding:8px 16px;">Add</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Interests -->
+          <div class="profile-card">
+            <h3>⚡ Interests</h3>
+            <div class="profile-section">
+              <div class="profile-label">What areas interest you?</div>
+              <textarea class="input-field" id="interests" style="height:100px;">0-to-1 product design, design systems, cross-functional collaboration, AI-assisted design tools, mentoring junior designers</textarea>
+            </div>
+          </div>
+
+          <!-- Growth & Certifications -->
+          <div class="profile-card">
+            <h3>🚀 Growth & Certifications</h3>
+            <div class="profile-section">
+              <div class="profile-label">Skills I Want to Develop</div>
+              <textarea class="input-field" id="growth-skills" style="height:80px;">Product strategy, data-driven design, leadership, public speaking at industry events</textarea>
+            </div>
+            <div class="profile-section">
+              <div class="profile-label">Certifications & Credentials</div>
+              <textarea class="input-field" id="certifications" style="height:80px;">Google UX Design Certificate (2022), Nielsen Norman Group UX Certification (2023), B.S. Interaction Design — Carnegie Mellon University</textarea>
+            </div>
+          </div>
+
+          <!-- Past Projects -->
+          <div class="profile-card">
+            <h3>💡 Past Projects</h3>
+            <div class="profile-section">
+              <div class="profile-label">Internal Projects</div>
+              <textarea class="input-field" id="past-projects" style="height:110px;">Led end-to-end redesign of the mobile checkout flow, reducing drop-off by 18%. Contributed to the company's first design system (v1.0), enabling consistent UI across 4 product teams. Ran generative user research for the onboarding revamp initiative.</textarea>
+            </div>
+            <button class="btn btn-primary" style="width:100%; margin-top:16px;" onclick="saveProfile()">Save Profile</button>
+          </div>
+
+          <!-- My Applications -->
+          <div class="profile-card" style="border:1.5px solid var(--mauve-300); background:linear-gradient(135deg,var(--mauve-50) 0%,white 100%);">
+            <h3 style="color:var(--mauve-700); margin-bottom:6px;">📬 My Applications</h3>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">Listings you have applied to and their current status.</p>
+            <div id="emp-applications-list"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- EMPLOYEE PAST PROJECTS -->
+      <div id="page-emp-past-projects" class="page">
+        <div class="page-header">
+          <h1>Past Projects</h1>
+          <p>Review the managers you've worked with</p>
+        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px;" id="emp-past-projects-list">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- MANAGER HOME -->
+      <div id="page-mgr-home" class="page">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:32px; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h1 style="font-size:28px; font-weight:800; margin-bottom:4px;">Welcome back, Jane</h1>
+            <p style="color:var(--text-secondary); font-size:15px;">Here are your active listings and applicants</p>
+          </div>
+          <button class="btn btn-primary" onclick="openModal('add-listing')" style="padding:10px 22px; font-size:14px; display:flex; align-items:center; gap:8px; white-space:nowrap;">
+            <span style="font-size:18px; line-height:1;">＋</span> Create Listing
+          </button>
+        </div>
+        <div id="manager-listings-home">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- MANAGER LISTINGS (kept for nav link) -->
+      <div id="page-mgr-listings" class="page">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; flex-wrap:wrap; gap:12px;">
+          <h1 style="font-size:28px; font-weight:800;">Your Listings</h1>
+          <button class="btn btn-primary" onclick="openModal('add-listing')" style="padding:10px 22px; font-size:14px; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:18px; line-height:1;">＋</span> New Listing
+          </button>
+        </div>
+        <div id="manager-listings">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- MANAGER PROJECTS -->
+      <div id="page-mgr-projects" class="page">
+        <div class="page-header">
+          <h1>Team Performance & Reviews</h1>
+        </div>
+
+        <div class="profile-card" style="max-width: 600px;">
+          <h3>Organization Hierarchy</h3>
+          <div class="org-chart" id="org-chart">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <div style="margin-top: 32px;">
+          <h3 style="margin-bottom: 16px;">Previous Projects & Team</h3>
+          <div class="listings-grid" id="manager-projects-list">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <div class="modal-overlay" id="modal-add-listing">
+    <div class="modal" style="max-width:520px; max-height:90vh; overflow-y:auto;">
+      <div class="modal-title">Create New Listing</div>
+      <div class="modal-sub">Post a new opportunity for internal applicants</div>
+      <div class="form-group">
+        <label class="form-label">Project Title *</label>
+        <input type="text" class="input-field" id="listing-title" placeholder="e.g., Mobile App Redesign">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description *</label>
+        <textarea class="form-textarea" id="listing-desc" placeholder="Describe the project and what you need..." style="height: 90px;"></textarea>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Team / Department</label>
+          <input type="text" class="input-field" id="listing-company" placeholder="e.g., Product Design">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Role Type</label>
+          <select class="filter-select" id="listing-position" style="width:100%;">
+            <option value="Design">Design</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Product">Product</option>
+            <option value="Data">Data</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div class="form-group">
+          <label class="form-label">Location</label>
+          <select class="filter-select" id="listing-location" style="width:100%;">
+            <option value="Remote">Remote</option>
+            <option value="New York">New York</option>
+            <option value="San Francisco">San Francisco</option>
+            <option value="Hybrid">Hybrid</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Time Commitment</label>
+          <select class="filter-select" id="listing-commitment" style="width:100%;">
+            <option value="25%">25%</option>
+            <option value="50%">50%</option>
+            <option value="75%">75%</option>
+            <option value="100%">100%</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Required Skills <span style="font-size:11px; color:var(--text-muted);">(comma-separated)</span></label>
+        <input type="text" class="input-field" id="listing-skills" placeholder="e.g., Figma, UX Design, Prototyping">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('add-listing')">Cancel</button>
+        <button class="btn btn-primary" onclick="createListing()">Post Listing</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-apply">
+    <div class="modal" style="max-height:90vh; overflow-y:auto;">
+      <div class="modal-title">Apply to Opportunity</div>
+      <div class="modal-sub" id="apply-job-name"></div>
+      <div id="apply-manager-info"></div>
+      <div class="form-group">
+        <label class="form-label">Your Message</label>
+        <textarea class="form-textarea" id="apply-message" placeholder="Tell them why you're interested..." style="height: 120px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Available Bandwidth</label>
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+          <span style="font-size:12px; color:var(--text-muted);">Low</span>
+          <span id="bandwidth-label" style="font-size:14px; font-weight:700; color:var(--mauve-700);">50%</span>
+          <span style="font-size:12px; color:var(--text-muted);">Full</span>
+        </div>
+        <input type="range" id="bandwidth-slider" min="10" max="100" step="10" value="50"
+          oninput="updateBandwidthLabel(this.value)"
+          style="width:100%; accent-color:var(--mauve-600); height:6px; cursor:pointer;">
+        <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-muted); margin-top:4px;">
+          <span>10%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('apply')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitApplication()">Send Application</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-review">
+    <div class="modal">
+      <div class="modal-title">Write Review</div>
+      <div class="modal-sub" id="review-employee-name"></div>
+      <div class="form-group">
+        <label class="form-label">Rating (1-5)</label>
+        <select class="filter-select" id="review-rating" style="width: 100%;">
+          <option value="5">⭐⭐⭐⭐⭐ Exceptional</option>
+          <option value="4">⭐⭐⭐⭐ Very Good</option>
+          <option value="3">⭐⭐⭐ Good</option>
+          <option value="2">⭐⭐ Fair</option>
+          <option value="1">⭐ Needs Improvement</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Review</label>
+        <textarea class="form-textarea" id="review-text" placeholder="Describe their performance..." style="height: 100px;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('review')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitReview()">Submit Review</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-endorse">
+    <div class="modal">
+      <div class="modal-title">Vouch for Skills</div>
+      <div class="modal-sub" id="endorse-employee-name"></div>
+      <div class="form-group">
+        <label class="form-label">Skill to Endorse</label>
+        <input type="text" class="input-field" id="endorse-skill" placeholder="e.g., Project Management, Communication">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Comments (optional)</label>
+        <textarea class="form-textarea" id="endorse-comment" placeholder="Why are you vouching for this skill?" style="height: 80px;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('endorse')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitEndorsement()">Vouch for Skill</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-skills-endorse">
+    <div class="modal" style="max-width: 480px; max-height: 80vh; overflow-y: auto;">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
+        <div class="avatar avatar-md" id="skills-panel-initials" style="background:#a384c3; flex-shrink:0;"></div>
+        <div>
+          <div class="modal-title" id="skills-panel-name" style="margin-bottom:2px;"></div>
+          <div style="font-size:13px; color:var(--text-secondary);" id="skills-panel-title"></div>
+        </div>
+      </div>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px; margin-top:8px;">Select the skills you want to endorse. Already vouched skills are pre-checked.</div>
+      <div id="skills-panel-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px;"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('skills-endorse')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitSkillEndorsements()">Vouch for Selected</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dev Goals Modal -->
+  <div class="modal-overlay" id="modal-dev-goals">
+    <div class="modal" style="max-width:520px;">
+      <div class="modal-title">Development Goals</div>
+      <div class="modal-sub" id="dev-goals-employee-name"></div>
+
+      <!-- Existing goals list -->
+      <div id="dev-goals-existing" style="margin-bottom:20px;"></div>
+
+      <!-- Add new goal form -->
+      <div style="border-top:1px solid var(--border); padding-top:18px;">
+        <div style="font-size:13px; font-weight:700; color:var(--text-secondary); margin-bottom:12px;">Add New Goal</div>
+        <div class="form-group">
+          <label class="form-label">Goal Title</label>
+          <input type="text" class="input-field" id="goal-title" placeholder="e.g. Lead a design sprint">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-textarea" id="goal-desc" placeholder="What should this person accomplish?" style="height:80px;"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Date</label>
+          <input type="text" class="input-field" id="goal-target" placeholder="e.g. Q3 2025">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('dev-goals')">Close</button>
+        <button class="btn btn-primary" onclick="submitDevGoal()">Add Goal</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modal-manager-review">
+    <div class="modal">
+      <div class="modal-title">Review Manager</div>
+      <div class="modal-sub" id="mgr-review-name"></div>
+      <div class="form-group">
+        <label class="form-label">Your Rating</label>
+        <div id="mgr-star-rating" style="display:flex; gap:8px; font-size:28px; cursor:pointer; margin:8px 0;">
+          <span data-val="1" onclick="setMgrStar(1)">☆</span>
+          <span data-val="2" onclick="setMgrStar(2)">☆</span>
+          <span data-val="3" onclick="setMgrStar(3)">☆</span>
+          <span data-val="4" onclick="setMgrStar(4)">☆</span>
+          <span data-val="5" onclick="setMgrStar(5)">☆</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Review</label>
+        <textarea class="form-textarea" id="mgr-review-text" placeholder="Share your experience working with this manager..." style="height: 100px;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('manager-review')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitManagerReview()">Submit Review</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Applicant Full Profile Modal -->
+  <div class="modal-overlay" id="modal-applicant-profile">
+    <div class="modal" style="max-width:560px; max-height:85vh; overflow-y:auto;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <div class="modal-title" style="margin:0;">Applicant Profile</div>
+        <button onclick="closeModal('applicant-profile')" style="background:none; border:none; font-size:20px; cursor:pointer; color:var(--text-muted); line-height:1;">×</button>
+      </div>
+      <div id="applicant-profile-body"></div>
+    </div>
+  </div>
+
+  <script>
+let persona = 'employee';
+let currentPage = 'emp-home';
+let currentJobPage = 1;
+const jobsPerPage = 8;
+let filteredJobs = [];
+let selectedJobId = null;
+let selectedEmployeeId = null;
+let selectedEndorseEmployeeId = null;
+let selectedManagerReviewId = null;
+let selectedMgrStar = 0;
+let applicationBandwidth = 50;
+
+const managerReviews = [
+  { id: "mr1", name: "Jane Doe", title: "Senior Manager, Product Design", initials: "JD", project: "Mobile App Redesign", duration: "Jan 2024 – Apr 2024", rating: null, review: null },
+  { id: "mr2", name: "David Chen", title: "VP of Engineering", initials: "DC", project: "API Optimization Sprint", duration: "May 2024 – Jul 2024", rating: null, review: null },
+  { id: "mr3", name: "Sarah Park", title: "Director of Design", initials: "SP", project: "Design System v2", duration: "Aug 2024 – Nov 2024", rating: null, review: null },
+];
+
+const managerPublicRatings = {
+  "Jane Doe": { avg: 4.6, count: 11, reviews: ["Great at unblocking the team and giving clear direction.", "Very supportive manager, always available for 1:1s.", "Excellent communicator, helped me grow a lot."] },
+  "David Chen": { avg: 4.2, count: 8, reviews: ["Technically strong but sometimes hard to reach.", "Good mentor, pushed me to think about scalability.", "Very hands-off which is great for senior ICs."] },
+  "Sarah Park": { avg: 4.8, count: 14, reviews: ["Best manager I've had — empowers you fully.", "Incredibly thoughtful feedback on design decisions.", "Makes space for everyone's voice in the room."] },
+};
+const managerListings = [
+  {
+    id: 1,
+    title: "UX Design Lead — Growth Redesign",
+    desc: "Looking for a senior designer to lead the end-to-end redesign of our growth funnel. Must have strong systems thinking and stakeholder management skills.",
+    skills: ["Figma", "UX Design", "Prototyping", "Design Systems"],
+    location: "Remote",
+    commitment: "50%",
+    company: "Product Design", position: "Design", matchScore: 95, manager: "Jane Doe",
+    applicants: [
+      {
+        id: "a1", name: "Priya Nair", title: "Product Designer", manager: "David Ortiz", bandwidth: 50,
+        managerEndorsedSkills: ["Figma", "Design Systems", "Stakeholder Communication"],
+        crossFunctionalRatings: [
+          { project: "Checkout Revamp", rating: 5, reviewer: "Anita Shah" },
+          { project: "Onboarding Flow", rating: 4, reviewer: "Tom Brennan" }
+        ]
+      },
+      {
+        id: "a2", name: "Kevin Marsh", title: "Senior UX Designer", manager: "Linda Cho", bandwidth: 80,
+        managerEndorsedSkills: ["Figma", "User Research", "Prototyping"],
+        crossFunctionalRatings: [
+          { project: "Mobile Navigation", rating: 5, reviewer: "Sarah Kim" },
+          { project: "Design System v2", rating: 5, reviewer: "Ravi Patel" }
+        ]
+      },
+      {
+        id: "a3", name: "Aisha Brooks", title: "UX Designer", manager: "James Wu", bandwidth: 30,
+        managerEndorsedSkills: ["UX Design", "Accessibility"],
+        crossFunctionalRatings: [
+          { project: "Settings Redesign", rating: 3, reviewer: "Marco Reyes" }
+        ]
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: "Product Analyst — Retention Initiative",
+    desc: "Seeking an analyst to partner with product and engineering to define and track retention metrics. Strong SQL and storytelling skills required.",
+    skills: ["SQL", "Analytics", "Data Visualization", "Storytelling"],
+    location: "New York",
+    commitment: "30%",
+    company: "Analytics", position: "Data", matchScore: 78, manager: "Sarah Park",
+    applicants: [
+      {
+        id: "a4", name: "Daniel Torres", title: "Data Analyst", manager: "Fiona Blake", bandwidth: 100,
+        managerEndorsedSkills: ["SQL", "Data Visualization", "Communication"],
+        crossFunctionalRatings: [
+          { project: "Q3 Growth Analysis", rating: 5, reviewer: "Nadia Osei" },
+          { project: "Churn Dashboard", rating: 4, reviewer: "Chris Lam" }
+        ]
+      },
+      {
+        id: "a5", name: "Mia Johansson", title: "Senior Analyst", manager: "Paul Nguyen", bandwidth: 60,
+        managerEndorsedSkills: ["SQL", "Analytics", "Presentation Skills"],
+        crossFunctionalRatings: [
+          { project: "Pricing Model", rating: 4, reviewer: "Zara Ahmad" },
+          { project: "Funnel Reporting", rating: 5, reviewer: "Ben Carter" }
+        ]
+      }
+    ]
+  },
+  {
+    id: 3,
+    title: "Frontend Engineer — Design System Build",
+    desc: "We need an engineer who can partner closely with design to build out scalable React components for our new design system.",
+    skills: ["React", "TypeScript", "CSS", "Accessibility"],
+    location: "Remote",
+    commitment: "100%",
+    company: "Engineering", position: "Engineering", matchScore: 88, manager: "David Chen",
+    applicants: [
+      {
+        id: "a6", name: "Omar Hassan", title: "Frontend Engineer", manager: "Tara Singh", bandwidth: 40,
+        managerEndorsedSkills: ["React", "TypeScript", "Accessibility", "Code Review"],
+        crossFunctionalRatings: [
+          { project: "Component Library", rating: 5, reviewer: "Lena Park" },
+          { project: "Onboarding Rewrite", rating: 5, reviewer: "Sam Brooks" }
+        ]
+      },
+      {
+        id: "a7", name: "Rachel Gomez", title: "UI Engineer", manager: "Eric Tan", bandwidth: 70,
+        managerEndorsedSkills: ["React", "CSS"],
+        crossFunctionalRatings: [
+          { project: "Marketing Pages", rating: 4, reviewer: "Julia West" }
+        ]
+      }
+    ]
+  },
+  {
+    id: 4, title: "Brand Identity Refresh", company: "Marketing", position: "Design", location: "Remote", commitment: "50%", matchScore: 82, manager: "Sarah Park",
+    desc: "Refresh the company's visual identity across web, print, and digital channels. Strong brand thinking and stakeholder communication required.",
+    skills: ["Brand Design", "Figma", "Illustrator", "Typography"],
+    applicants: [
+      { id:"b1", name:"Nina Patel", title:"Brand Designer", manager:"Raj Mehta", bandwidth:60,
+        managerEndorsedSkills:["Brand Design","Typography","Stakeholder Communication"],
+        crossFunctionalRatings:[{project:"Brand Launch 2023",rating:5,reviewer:"Cara Liu"},{project:"Packaging Redesign",rating:4,reviewer:"Tom Sato"}] },
+      { id:"b2", name:"Leo Cruz", title:"Visual Designer", manager:"Amara Osei", bandwidth:40,
+        managerEndorsedSkills:["Illustrator","Figma"],
+        crossFunctionalRatings:[{project:"Annual Report",rating:4,reviewer:"Priya Singh"}] }
+    ]
+  },
+  {
+    id: 5, title: "Data Platform Engineering", company: "Data Infrastructure", position: "Engineering", location: "San Francisco", commitment: "100%", matchScore: 85, manager: "David Chen",
+    desc: "Build and maintain scalable data pipelines and warehouse infrastructure. Experience with dbt, Snowflake, and Airflow strongly preferred.",
+    skills: ["Python", "dbt", "Snowflake", "Airflow", "SQL"],
+    applicants: [
+      { id:"b3", name:"Sam Okafor", title:"Data Engineer", manager:"Helen Wu", bandwidth:100,
+        managerEndorsedSkills:["Python","SQL","dbt"],
+        crossFunctionalRatings:[{project:"Warehouse Migration",rating:5,reviewer:"Dani Park"},{project:"Pipeline Rebuild",rating:5,reviewer:"Chris Lam"}] },
+      { id:"b4", name:"Yuki Tanaka", title:"Senior Data Engineer", manager:"Felix Braun", bandwidth:70,
+        managerEndorsedSkills:["Airflow","Snowflake","Python"],
+        crossFunctionalRatings:[{project:"ETL Modernization",rating:4,reviewer:"Amir Hassan"},{project:"Data Quality Initiative",rating:4,reviewer:"Sarah Min"}] },
+      { id:"b5", name:"Chloe Martin", title:"Analytics Engineer", manager:"Dom Torres", bandwidth:50,
+        managerEndorsedSkills:["dbt","SQL","Data Modeling"],
+        crossFunctionalRatings:[{project:"Metrics Layer Build",rating:5,reviewer:"Jin Park"}] }
+    ]
+  },
+  {
+    id: 6, title: "Growth Marketing Lead", company: "Growth", position: "Marketing", location: "Remote", commitment: "75%", matchScore: 76, manager: "Jane Doe",
+    desc: "Own and execute multi-channel growth campaigns across email, paid, and lifecycle. Collaborate closely with product and design.",
+    skills: ["Growth Marketing", "A/B Testing", "Email Marketing", "Analytics"],
+    applicants: [
+      { id:"b6", name:"Fatima Al-Rashid", title:"Growth Marketer", manager:"Ben Clarke", bandwidth:80,
+        managerEndorsedSkills:["A/B Testing","Email Marketing","Analytics"],
+        crossFunctionalRatings:[{project:"Q2 Acquisition Campaign",rating:5,reviewer:"Zoe Lin"},{project:"Onboarding Drip",rating:4,reviewer:"Paul Grant"}] },
+      { id:"b7", name:"Marcus Obi", title:"Performance Marketer", manager:"Lara Kim", bandwidth:60,
+        managerEndorsedSkills:["Paid Acquisition","Analytics"],
+        crossFunctionalRatings:[{project:"Paid Social Relaunch",rating:4,reviewer:"Tara Wells"}] }
+    ]
+  },
+  {
+    id: 7, title: "iOS Mobile Engineer", company: "Mobile Platform", position: "Engineering", location: "Remote", commitment: "100%", matchScore: 89, manager: "David Chen",
+    desc: "Join the mobile team to build high-quality iOS features used by millions. Strong Swift expertise and experience with UIKit or SwiftUI required.",
+    skills: ["Swift", "SwiftUI", "UIKit", "XCTest", "CI/CD"],
+    applicants: [
+      { id:"b8", name:"Arjun Sharma", title:"iOS Engineer", manager:"Mei Wang", bandwidth:100,
+        managerEndorsedSkills:["Swift","SwiftUI","XCTest"],
+        crossFunctionalRatings:[{project:"Feed Redesign",rating:5,reviewer:"Kim Lee"},{project:"Notification System",rating:5,reviewer:"Ryan Park"}] },
+      { id:"b9", name:"Elena Vasquez", title:"Senior iOS Developer", manager:"Tom Hayes", bandwidth:75,
+        managerEndorsedSkills:["Swift","UIKit","CI/CD"],
+        crossFunctionalRatings:[{project:"App Performance Initiative",rating:4,reviewer:"Diana Chen"},{project:"Widget SDK",rating:5,reviewer:"Omar Ndiaye"}] }
+    ]
+  },
+  {
+    id: 8, title: "Content Strategy Lead", company: "Brand & Content", position: "Marketing", location: "Remote", commitment: "50%", matchScore: 73, manager: "Sarah Park",
+    desc: "Define and execute a content strategy that drives organic growth, supports product launches, and builds brand authority across key channels.",
+    skills: ["Content Strategy", "SEO", "Copywriting", "Analytics"],
+    applicants: [
+      { id:"b10", name:"Jade Williams", title:"Content Strategist", manager:"Nina Kapoor", bandwidth:50,
+        managerEndorsedSkills:["Content Strategy","SEO","Copywriting"],
+        crossFunctionalRatings:[{project:"Blog Revamp",rating:5,reviewer:"Alex Moore"},{project:"Launch Playbook",rating:4,reviewer:"Sam Reed"}] },
+      { id:"b11", name:"Patrick Nguyen", title:"Senior Content Manager", manager:"Clare Davis", bandwidth:40,
+        managerEndorsedSkills:["Copywriting","SEO"],
+        crossFunctionalRatings:[{project:"Developer Docs Rewrite",rating:4,reviewer:"Yara Scott"}] },
+      { id:"b12", name:"Amara Diallo", title:"Content Lead", manager:"James Bell", bandwidth:70,
+        managerEndorsedSkills:["Content Strategy","Brand Voice","Analytics"],
+        crossFunctionalRatings:[{project:"Rebrand Messaging",rating:5,reviewer:"Leo Cheng"}] }
+    ]
+  },
+  {
+    id: 9, title: "Backend Engineer — Payments", company: "Payments Platform", position: "Engineering", location: "New York", commitment: "100%", matchScore: 86, manager: "David Chen",
+    desc: "Help scale our payments infrastructure to support new markets and products. Experience with distributed systems and financial APIs required.",
+    skills: ["Go", "Kafka", "PostgreSQL", "REST APIs", "Stripe"],
+    applicants: [
+      { id:"b13", name:"Carlos Reyes", title:"Backend Engineer", manager:"Fiona Blake", bandwidth:100,
+        managerEndorsedSkills:["Go","PostgreSQL","REST APIs"],
+        crossFunctionalRatings:[{project:"Payment Retry System",rating:5,reviewer:"Nadia Osei"},{project:"Fraud Detection API",rating:4,reviewer:"Tim Park"}] },
+      { id:"b14", name:"Sofia Andersen", title:"Senior Backend Engineer", manager:"Kenji Watanabe", bandwidth:80,
+        managerEndorsedSkills:["Kafka","Go","Distributed Systems"],
+        crossFunctionalRatings:[{project:"Ledger Microservice",rating:5,reviewer:"Ana Lima"},{project:"Payout Scaling",rating:5,reviewer:"Dayo Adeola"}] }
+    ]
+  },
+  {
+    id: 10, title: "Research Operations Manager", company: "UX Research", position: "Product", location: "Remote", commitment: "50%", matchScore: 80, manager: "Jane Doe",
+    desc: "Build and run the research operations function — recruiting participants, managing tooling, and scaling research processes across product teams.",
+    skills: ["Research Operations", "Participant Recruiting", "Qualtrics", "Project Management"],
+    applicants: [
+      { id:"b15", name:"Tanya Brooks", title:"Research Ops Specialist", manager:"Priya Nair", bandwidth:60,
+        managerEndorsedSkills:["Research Operations","Project Management","Qualtrics"],
+        crossFunctionalRatings:[{project:"Research Tooling Audit",rating:4,reviewer:"Kemi Adeyemi"},{project:"Participant Panel Build",rating:5,reviewer:"Luke Song"}] },
+      { id:"b16", name:"Hassan Ibrahim", title:"UX Researcher", manager:"Rachel Green", bandwidth:50,
+        managerEndorsedSkills:["Qualtrics","Participant Recruiting"],
+        crossFunctionalRatings:[{project:"Checkout Usability Study",rating:4,reviewer:"Ines Rivera"}] }
+    ]
+  },
+  {
+    id: 11, title: "Machine Learning Engineer", company: "AI Platform", position: "Engineering", location: "San Francisco", commitment: "100%", matchScore: 91, manager: "David Chen",
+    desc: "Design, train, and deploy ML models to improve recommendations, search relevance, and personalisation across the product.",
+    skills: ["Python", "PyTorch", "MLflow", "Feature Engineering", "SQL"],
+    applicants: [
+      { id:"b17", name:"Priya Joshi", title:"ML Engineer", manager:"Sven Larsson", bandwidth:90,
+        managerEndorsedSkills:["PyTorch","Python","Feature Engineering"],
+        crossFunctionalRatings:[{project:"Recommendation Engine v2",rating:5,reviewer:"Ben Yao"},{project:"Search Ranking Uplift",rating:5,reviewer:"Nia Okafor"}] },
+      { id:"b18", name:"Diego Morales", title:"Senior ML Engineer", manager:"Lisa Choi", bandwidth:100,
+        managerEndorsedSkills:["MLflow","Python","Model Deployment"],
+        crossFunctionalRatings:[{project:"Churn Prediction Model",rating:4,reviewer:"Karen Wu"}] },
+      { id:"b19", name:"Mei Suzuki", title:"Data Scientist", manager:"Ravi Gupta", bandwidth:70,
+        managerEndorsedSkills:["Python","SQL","Statistical Modeling"],
+        crossFunctionalRatings:[{project:"Pricing ML Model",rating:5,reviewer:"Chris Tan"},{project:"NPS Prediction",rating:4,reviewer:"Laura Kim"}] }
+    ]
+  },
+  {
+    id: 12, title: "Product Design Intern — Summer", company: "Product Design", position: "Design", location: "Remote", commitment: "100%", matchScore: 88, manager: "Jane Doe",
+    desc: "A 12-week design internship working on real product surfaces. You'll own a project end-to-end from research through final delivery.",
+    skills: ["Figma", "User Research", "Prototyping", "Presentation"],
+    applicants: [
+      { id:"b20", name:"Zara Ahmed", title:"Design Student", manager:"Faculty Advisor", bandwidth:100,
+        managerEndorsedSkills:["Figma","Prototyping"],
+        crossFunctionalRatings:[{project:"Capstone Project",rating:5,reviewer:"Prof. Kim"}] },
+      { id:"b21", name:"Oliver Chen", title:"Design Student", manager:"Faculty Advisor", bandwidth:100,
+        managerEndorsedSkills:["Figma","User Research","Presentation"],
+        crossFunctionalRatings:[{project:"UX Hackathon",rating:4,reviewer:"Industry Judge"}] }
+    ]
+  },
+  {
+    id: 13, title: "Security Engineer", company: "Infrastructure Security", position: "Engineering", location: "San Francisco", commitment: "100%", matchScore: 83, manager: "David Chen",
+    desc: "Protect our infrastructure and customer data through threat modelling, vulnerability management, and security tooling.",
+    skills: ["Security Engineering", "Threat Modelling", "AWS", "Python", "IAM"],
+    applicants: [
+      { id:"b22", name:"Isaac Mensah", title:"Security Engineer", manager:"Ama Asante", bandwidth:100,
+        managerEndorsedSkills:["Threat Modelling","AWS","Python"],
+        crossFunctionalRatings:[{project:"PenTest 2024",rating:5,reviewer:"Vera Schmidt"}] },
+      { id:"b23", name:"Luna Park", title:"AppSec Engineer", manager:"Eric Fox", bandwidth:80,
+        managerEndorsedSkills:["IAM","Security Engineering","Python"],
+        crossFunctionalRatings:[{project:"OAuth Hardening",rating:4,reviewer:"Dale Wu"},{project:"SIEM Implementation",rating:5,reviewer:"Jin Seo"}] }
+    ]
+  },
+  {
+    id: 14, title: "Customer Experience Analyst", company: "Customer Success", position: "Data", location: "New York", commitment: "50%", matchScore: 77, manager: "Sarah Park",
+    desc: "Analyse customer feedback, support tickets, and NPS data to surface product insights and drive CX improvements.",
+    skills: ["SQL", "Tableau", "NPS Analysis", "Customer Journey Mapping"],
+    applicants: [
+      { id:"b24", name:"Simone Laurent", title:"CX Analyst", manager:"Marc Bouchard", bandwidth:50,
+        managerEndorsedSkills:["SQL","Tableau","NPS Analysis"],
+        crossFunctionalRatings:[{project:"CX Scorecard Build",rating:5,reviewer:"Leila Nouri"},{project:"Churn Reason Analysis",rating:4,reviewer:"Tobias Holm"}] },
+      { id:"b25", name:"Kwame Asante", title:"Data Analyst", manager:"Sarah Hope", bandwidth:60,
+        managerEndorsedSkills:["SQL","Customer Journey Mapping"],
+        crossFunctionalRatings:[{project:"CSAT Dashboard",rating:4,reviewer:"Mia Torres"}] },
+      { id:"b26", name:"Petra Holmberg", title:"Senior Analyst", manager:"Lars Eriksson", bandwidth:70,
+        managerEndorsedSkills:["Tableau","SQL","Storytelling"],
+        crossFunctionalRatings:[{project:"VOC Programme",rating:5,reviewer:"Ahmed Raza"}] }
+    ]
+  },
+  {
+    id: 15, title: "Engineering Manager — Growth", company: "Growth Engineering", position: "Engineering", location: "Remote", commitment: "100%", matchScore: 87, manager: "David Chen",
+    desc: "Lead a team of 5-7 engineers building growth infrastructure — experimentation platforms, referral systems, and activation flows.",
+    skills: ["Engineering Leadership", "Experimentation", "React", "Node.js", "Hiring"],
+    applicants: [
+      { id:"b27", name:"Andre Baptiste", title:"Senior Engineer → EM", manager:"Claire Fontaine", bandwidth:100,
+        managerEndorsedSkills:["Engineering Leadership","Hiring","React"],
+        crossFunctionalRatings:[{project:"Experiment Platform v2",rating:5,reviewer:"Eva Nguyen"},{project:"Referral Engine",rating:5,reviewer:"Max Chen"}] },
+      { id:"b28", name:"Yuki Hashimoto", title:"Staff Engineer", manager:"Naomi Sato", bandwidth:90,
+        managerEndorsedSkills:["Node.js","React","System Design"],
+        crossFunctionalRatings:[{project:"Activation Funnel Rebuild",rating:4,reviewer:"Dan Park"}] }
+    ]
+  },
+  {
+    id: 16, title: "Localisation Program Manager", company: "International Growth", position: "Product", location: "Remote", commitment: "50%", matchScore: 74, manager: "Jane Doe",
+    desc: "Manage the end-to-end localisation of our product for 8 new markets. Coordinate with translation vendors, engineers, and regional PMs.",
+    skills: ["Program Management", "Localisation", "Cross-functional Collaboration", "Jira"],
+    applicants: [
+      { id:"b29", name:"Ana Ferreira", title:"Program Manager", manager:"Paulo Costa", bandwidth:60,
+        managerEndorsedSkills:["Program Management","Localisation","Jira"],
+        crossFunctionalRatings:[{project:"LATAM Launch",rating:5,reviewer:"Isabella Melo"},{project:"EU Compliance Rollout",rating:4,reviewer:"Lukas Baur"}] },
+      { id:"b30", name:"Daisuke Yamamoto", title:"TPM", manager:"Yuki Ito", bandwidth:50,
+        managerEndorsedSkills:["Cross-functional Collaboration","Program Management"],
+        crossFunctionalRatings:[{project:"APAC Expansion",rating:4,reviewer:"Mei Lin"}] }
+    ]
+  },
+  {
+    id: 17, title: "Staff Product Designer — Checkout", company: "Commerce", position: "Design", location: "New York", commitment: "75%", matchScore: 93, manager: "Sarah Park",
+    desc: "Define the future of our checkout experience across web and native. Partner directly with the VP of Product on strategy and roadmap.",
+    skills: ["Product Design", "Interaction Design", "Figma", "Design Strategy", "Research"],
+    applicants: [
+      { id:"b31", name:"Nadia Volkova", title:"Senior Product Designer", manager:"Alexei Petrov", bandwidth:80,
+        managerEndorsedSkills:["Product Design","Research","Figma"],
+        crossFunctionalRatings:[{project:"Checkout 2.0",rating:5,reviewer:"Marco Bianchi"},{project:"One-Click Buy",rating:5,reviewer:"Hana Kim"}] },
+      { id:"b32", name:"Tobi Adeyemi", title:"Staff Designer", manager:"Grace Adeleke", bandwidth:70,
+        managerEndorsedSkills:["Design Strategy","Interaction Design","Figma"],
+        crossFunctionalRatings:[{project:"Cart Abandon Recovery",rating:5,reviewer:"Sam Torres"},{project:"Address Autofill UX",rating:4,reviewer:"Celia Park"}] },
+      { id:"b33", name:"Ingrid Svensson", title:"Principal Designer", manager:"Erik Lindqvist", bandwidth:60,
+        managerEndorsedSkills:["Product Design","Design Strategy","Stakeholder Management"],
+        crossFunctionalRatings:[{project:"Payments Redesign",rating:5,reviewer:"Julia Wolf"}] }
+    ]
+  },
+  {
+    id: 18, title: "Developer Relations Engineer", company: "Platform & Ecosystem", position: "Engineering", location: "Remote", commitment: "75%", matchScore: 81, manager: "David Chen",
+    desc: "Engage the developer community through talks, demos, content, and SDKs. Help external developers build successfully on our platform.",
+    skills: ["Developer Relations", "Technical Writing", "JavaScript", "Public Speaking", "SDKs"],
+    applicants: [
+      { id:"b34", name:"Brendan Walsh", title:"DevRel Engineer", manager:"Siobhan O'Brien", bandwidth:75,
+        managerEndorsedSkills:["Developer Relations","Technical Writing","JavaScript"],
+        crossFunctionalRatings:[{project:"SDK 3.0 Launch",rating:5,reviewer:"Cam Young"},{project:"DevX Survey",rating:4,reviewer:"Pat Liu"}] },
+      { id:"b35", name:"Chioma Eze", title:"Developer Advocate", manager:"Emeka Nwosu", bandwidth:80,
+        managerEndorsedSkills:["Public Speaking","SDKs","Technical Writing"],
+        crossFunctionalRatings:[{project:"API Docs Overhaul",rating:5,reviewer:"James Ford"}] }
+    ]
+  },
+  {
+    id: 19, title: "Finance Business Partner", company: "Finance", position: "Data", location: "New York", commitment: "50%", matchScore: 72, manager: "Sarah Park",
+    desc: "Partner with product and engineering leadership to provide financial planning, forecasting, and investment analysis.",
+    skills: ["Financial Modelling", "Excel", "Tableau", "FP&A", "Stakeholder Management"],
+    applicants: [
+      { id:"b36", name:"Isabelle Moreau", title:"Finance Analyst", manager:"Henri Dubois", bandwidth:50,
+        managerEndorsedSkills:["Financial Modelling","Excel","FP&A"],
+        crossFunctionalRatings:[{project:"Annual Plan 2025",rating:4,reviewer:"Chris Renaud"},{project:"Product ROI Model",rating:5,reviewer:"Sasha Petrov"}] },
+      { id:"b37", name:"Daniel Osei-Bonsu", title:"Senior FP&A Analyst", manager:"Abena Mensah", bandwidth:60,
+        managerEndorsedSkills:["Tableau","FP&A","Stakeholder Management"],
+        crossFunctionalRatings:[{project:"Headcount Planning Tool",rating:4,reviewer:"Kofi Owusu"}] },
+      { id:"b38", name:"Lena Burkhardt", title:"Finance Manager", manager:"Tobias Bauer", bandwidth:40,
+        managerEndorsedSkills:["Financial Modelling","Excel","Stakeholder Management"],
+        crossFunctionalRatings:[{project:"EMEA Budget Forecast",rating:5,reviewer:"Nina Weber"}] }
+    ]
+  },
+  {
+    id: 20, title: "Platform Reliability Engineer", company: "Site Reliability", position: "Engineering", location: "San Francisco", commitment: "100%", matchScore: 90, manager: "David Chen",
+    desc: "Own availability, scalability, and latency SLOs across our core platform. Drive incident response and work with teams to reduce toil.",
+    skills: ["SRE", "Kubernetes", "Terraform", "Prometheus", "Python"],
+    applicants: [
+      { id:"b39", name:"Raj Patel", title:"SRE", manager:"Nisha Shah", bandwidth:100,
+        managerEndorsedSkills:["Kubernetes","Terraform","Python"],
+        crossFunctionalRatings:[{project:"Incident Response Revamp",rating:5,reviewer:"Ana Costa"},{project:"K8s Migration",rating:5,reviewer:"Erik Strand"}] },
+      { id:"b40", name:"Fiona O'Connor", title:"Platform Engineer", manager:"Seamus Burke", bandwidth:90,
+        managerEndorsedSkills:["Prometheus","SRE","Terraform"],
+        crossFunctionalRatings:[{project:"SLO Dashboard",rating:4,reviewer:"Tom Walsh"},{project:"On-call Automation",rating:5,reviewer:"Aoife Ryan"}] }
+    ]
+  },
+  {
+    id: 21, title: "Product Manager — Search", company: "Discovery", position: "Product", location: "Remote", commitment: "100%", matchScore: 84, manager: "Jane Doe",
+    desc: "Own search relevance, ranking, and discovery experiences. Partner closely with ML and design to improve how users find what they need.",
+    skills: ["Product Management", "Search/NLP", "Data Analysis", "Roadmapping", "A/B Testing"],
+    applicants: [
+      { id:"b41", name:"Tom Eriksson", title:"Product Manager", manager:"Sara Lindqvist", bandwidth:100,
+        managerEndorsedSkills:["Product Management","A/B Testing","Roadmapping"],
+        crossFunctionalRatings:[{project:"Search v3 Launch",rating:5,reviewer:"Kai Hansen"},{project:"Autocomplete Uplift",rating:4,reviewer:"Mia Holm"}] },
+      { id:"b42", name:"Adaeze Okeke", title:"Senior PM", manager:"Chidi Obi", bandwidth:80,
+        managerEndorsedSkills:["Search/NLP","Data Analysis","Stakeholder Management"],
+        crossFunctionalRatings:[{project:"Query Understanding",rating:5,reviewer:"Emeka Agu"}] },
+      { id:"b43", name:"Bastian Müller", title:"Group PM", manager:"Klaus Weber", bandwidth:70,
+        managerEndorsedSkills:["Roadmapping","Product Management","A/B Testing"],
+        crossFunctionalRatings:[{project:"Personalisation Engine",rating:4,reviewer:"Anna Braun"},{project:"Zero Results Recovery",rating:5,reviewer:"Lena Koch"}] }
+    ]
+  },
+  {
+    id: 22, title: "Accessibility Lead", company: "Design Systems", position: "Design", location: "Remote", commitment: "50%", matchScore: 86, manager: "Sarah Park",
+    desc: "Champion accessibility across the product — audit components, define standards, run training, and work with engineering to ship WCAG-compliant experiences.",
+    skills: ["Accessibility", "WCAG", "ARIA", "Screen Reader Testing", "Figma"],
+    applicants: [
+      { id:"b44", name:"Grace Mwangi", title:"Accessibility Specialist", manager:"James Odhiambo", bandwidth:60,
+        managerEndorsedSkills:["Accessibility","WCAG","Screen Reader Testing"],
+        crossFunctionalRatings:[{project:"WCAG 2.2 Audit",rating:5,reviewer:"Amina Diallo"},{project:"Component Library A11y",rating:5,reviewer:"Kwame Boateng"}] },
+      { id:"b45", name:"Matt Sullivan", title:"Senior UX Engineer", manager:"Ann Doyle", bandwidth:50,
+        managerEndorsedSkills:["ARIA","Figma","Accessibility"],
+        crossFunctionalRatings:[{project:"Forms Accessibility Uplift",rating:4,reviewer:"Cian Murphy"}] }
+    ]
+  },
+  {
+    id: 23, title: "Technical Program Manager — Platform", company: "Platform Engineering", position: "Product", location: "Hybrid", commitment: "100%", matchScore: 79, manager: "Jane Doe",
+    desc: "Drive complex cross-team platform initiatives from planning through delivery. Manage dependencies, risks, and executive communications.",
+    skills: ["Technical Program Management", "Jira", "Risk Management", "Cross-functional Leadership"],
+    applicants: [
+      { id:"b46", name:"Sandra Kim", title:"TPM", manager:"Howard Lee", bandwidth:100,
+        managerEndorsedSkills:["Technical Program Management","Risk Management","Jira"],
+        crossFunctionalRatings:[{project:"Platform Consolidation",rating:5,reviewer:"Soo Park"},{project:"API Versioning Project",rating:4,reviewer:"Jin Ho"}] },
+      { id:"b47", name:"Carlos Montoya", title:"Senior TPM", manager:"Rosa Hernandez", bandwidth:80,
+        managerEndorsedSkills:["Cross-functional Leadership","Technical Program Management"],
+        crossFunctionalRatings:[{project:"Multi-region Rollout",rating:4,reviewer:"Luis Flores"}] }
+    ]
+  }
+];
+filteredJobs = [...managerListings];
+
+const teamMembers = [
+  { id: "tm1", name: "Shivani Kalmane", title: "Senior Product Designer", skills: ["Product Design", "Figma", "User Research", "Prototyping", "Design Systems"], vouchedSkills: [],
+    devGoals: [
+      { id: "g1", title: "Lead a cross-functional design sprint", desc: "Own the end-to-end facilitation of a design sprint with eng and product stakeholders.", targetDate: "Q3 2025", status: "in-progress" },
+      { id: "g2", title: "Develop mentorship skills", desc: "Mentor a junior designer and provide structured feedback over 2 quarters.", targetDate: "Q4 2025", status: "not-started" }
+    ]
+  },
+  { id: "tm2", name: "Marcus Webb", title: "Product Manager", skills: ["Product Strategy", "Roadmap Planning", "Stakeholder Management", "Analytics"], vouchedSkills: ["Analytics"], devGoals: [] },
+  { id: "tm3", name: "Jordan Lee", title: "Frontend Engineer", skills: ["React", "TypeScript", "CSS", "Accessibility"], vouchedSkills: ["React", "TypeScript"], devGoals: [] }
+];
+
+const previousTeamMembers = [
+  { id: "pt1", name: "Sarah Johnson", title: "UX Researcher", project: "Mobile App Redesign", rating: null, review: null },
+  { id: "pt2", name: "David Kim", title: "Backend Engineer", project: "Mobile App Redesign", rating: null, review: null },
+  { id: "pt3", name: "Emma Rodriguez", title: "Data Analyst", project: "Mobile App Redesign", rating: null, review: null },
+  { id: "pt4", name: "James Zhang", title: "DevOps Engineer", project: "API Optimization", rating: null, review: null },
+  { id: "pt5", name: "Lisa Park", title: "Senior Engineer", project: "API Optimization", rating: null, review: null },
+  { id: "pt6", name: "Ryan Thompson", title: "QA Engineer", project: "API Optimization", rating: null, review: null }
+];
+
+function switchPersona(p) {
+  persona = p;
+  document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  updateNavLinks();
+  goToPage(p === 'employee' ? 'emp-home' : 'mgr-home');
+}
+
+function updateNavLinks() {
+  const profileLink = document.getElementById('profile-link');
+  const projectsLink = document.getElementById('projects-link');
+  const pastProjectsLink = document.getElementById('past-projects-link');
+  if (persona === 'employee') {
+    profileLink.style.display = 'flex';
+    pastProjectsLink.style.display = 'flex';
+    projectsLink.style.display = 'none';
+  } else {
+    profileLink.style.display = 'none';
+    pastProjectsLink.style.display = 'none';
+    projectsLink.style.display = 'block';
+  }
+}
+
+function goHome() {
+  if (persona === 'employee') {
+    goToPage('emp-home');
+  } else {
+    goToPage('mgr-home');
+  }
+}
+
+function goToPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`page-${page}`).classList.add('active');
+  currentPage = page;
+
+  if (page === 'emp-home') renderJobs();
+  if (page === 'emp-profile') { renderEmpDevGoals(); renderMyApplications(); }
+  if (page === 'emp-past-projects') renderEmpPastProjects();
+  if (page === 'mgr-home') renderManagerListingsInto('manager-listings-home', 'home');
+  if (page === 'mgr-listings') renderManagerListingsInto('manager-listings', 'listings');
+  if (page === 'mgr-projects') renderManagerProjects();
+}
+
+function renderJobs() {
+  const grid = document.getElementById('jobs-grid');
+  const start = (currentJobPage - 1) * jobsPerPage;
+  const end = start + jobsPerPage;
+  const pageJobs = filteredJobs.slice(start, end);
+
+  grid.innerHTML = pageJobs.map(job => `
+    <div class="job-card">
+      <div class="job-header">
+        <div class="job-title">${job.title}</div>
+        <div class="job-company">${job.company}</div>
+      </div>
+      <div class="job-meta">
+        <span class="badge">${job.position}</span>
+        <span class="badge">${job.location}</span>
+      </div>
+      <div class="job-description">${job.desc}</div>
+      <div class="job-footer">
+        <span class="match-score">${job.matchScore}% Match</span>
+        ${appliedJobs.has(job.id)
+          ? `<button class="apply-btn" disabled style="background:var(--success); cursor:default; opacity:0.85;">Applied ✓</button>`
+          : `<button class="apply-btn" onclick="openApplyModal(${job.id})">Apply</button>`
+        }
+      </div>
+    </div>
+  `).join('');
+
+  // Render AI recommendations
+  const aiRecs = document.getElementById('ai-recs');
+  const topMatches = [...managerListings].sort((a, b) => b.matchScore - a.matchScore).slice(0, 6);
+  aiRecs.innerHTML = topMatches.map(job => `
+    <div class="ai-rec-card" onclick="selectJob(${job.id})">
+      <div class="ai-rec-title">${job.title}</div>
+      <div class="ai-rec-match">${job.matchScore}% match</div>
+    </div>
+  `).join('');
+
+  // Render pagination
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+  const pagination = document.getElementById('pagination');
+  let paginationHTML = '';
+  for (let i = 1; i <= totalPages; i++) {
+    paginationHTML += `<button class="pagination-btn ${i === currentJobPage ? 'active' : ''}" onclick="goToJobPage(${i})">${i}</button>`;
+  }
+  pagination.innerHTML = paginationHTML;
+}
+
+function filterJobs() {
+  const position = document.getElementById('filter-position').value;
+  const location = document.getElementById('filter-location').value;
+  const skills = document.getElementById('filter-skills').value.toLowerCase();
+
+  filteredJobs = managerListings.filter(job => {
+    const posMatch = !position || job.position === position;
+    const locMatch = !location || job.location === location;
+    const skillMatch = !skills || job.skills.some(s => s.toLowerCase().includes(skills));
+    return posMatch && locMatch && skillMatch;
+  });
+
+  currentJobPage = 1;
+  renderJobs();
+}
+
+function goToJobPage(page) {
+  currentJobPage = page;
+  renderJobs();
+}
+
+function selectJob(id) {
+  selectedJobId = id;
+  openApplyModal(id);
+}
+
+function openApplyModal(id) {
+  selectedJobId = id;
+  const job = managerListings.find(j => j.id === id);
+  document.getElementById('apply-job-name').textContent = job.title;
+  // Manager info
+  const infoEl = document.getElementById('apply-manager-info');
+  if (job.manager && managerPublicRatings[job.manager]) {
+    const mgr = managerPublicRatings[job.manager];
+    const initials = job.manager.split(' ').map(n => n[0]).join('');
+    infoEl.innerHTML = `
+      <div style="background:var(--mauve-50); border:1px solid var(--mauve-200); border-radius:10px; padding:14px 16px; margin-bottom:4px;">
+        <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">Project Manager</div>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+          <div style="width:32px; height:32px; border-radius:50%; background:var(--mauve-500); color:white; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center;">${initials}</div>
+          <div>
+            <div style="font-weight:700; font-size:14px;">${job.manager}</div>
+            <div style="font-size:12px; color:var(--mauve-600); font-weight:600;">⭐ ${mgr.avg} avg · ${mgr.count} reviews</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:5px;">
+          ${mgr.reviews.slice(0,2).map(r => `<div style="font-size:12px; color:var(--text-secondary); font-style:italic; background:var(--surface); padding:6px 10px; border-radius:6px; border:1px solid var(--border);">"${r}"</div>`).join('')}
+        </div>
+      </div>
+    `;
+  } else {
+    infoEl.innerHTML = `<div style="font-size:13px; color:var(--text-muted); margin-bottom:12px; padding:10px; background:var(--mauve-50); border-radius:8px;">No reviews yet for this manager.</div>`;
+  }
+  // Reset bandwidth
+  document.getElementById('bandwidth-slider').value = 50;
+  updateBandwidthLabel(50);
+  openModal('apply');
+}
+
+function updateBandwidthLabel(val) {
+  applicationBandwidth = parseInt(val);
+  const label = document.getElementById('bandwidth-label');
+  label.textContent = val + '%';
+  label.style.color = val >= 75 ? 'var(--success)' : val >= 40 ? 'var(--mauve-700)' : 'var(--text-muted)';
+}
+
+// Map<listingId, {status: 'pending'|'accepted'|'rejected'}>
+const appliedJobs = new Map();
+
+function submitApplication() {
+  const listing = managerListings.find(j => j.id === selectedJobId);
+  const message = document.getElementById('apply-message').value.trim();
+
+  // Add Shivani as a real applicant if not already applied
+  const alreadyApplied = listing.applicants.some(a => a.id === 'shivani');
+  if (!alreadyApplied) {
+    const shivani = teamMembers.find(t => t.id === 'tm1');
+    listing.applicants.push({
+      id: 'shivani',
+      name: 'Shivani Kalmane',
+      title: 'Senior Product Designer',
+      manager: 'Jane Doe',
+      bandwidth: applicationBandwidth,
+      message,
+      status: 'pending',
+      managerEndorsedSkills: shivani.vouchedSkills.length
+        ? shivani.vouchedSkills
+        : ['Product Design', 'Figma', 'User Research', 'Prototyping'],
+      crossFunctionalRatings: [
+        { project: 'Mobile App Redesign', rating: 5, reviewer: 'James Park' },
+        { project: 'Design System v2', rating: 4, reviewer: 'Lena Cho' }
+      ]
+    });
+  }
+
+  // Update applicant status field
+  const myApp = listing.applicants.find(a => a.id === 'shivani');
+  if (myApp && !myApp.status) myApp.status = 'pending';
+  appliedJobs.set(selectedJobId, { status: 'pending' });
+  closeModal('apply');
+  document.getElementById('apply-message').value = '';
+  renderJobs();
+  renderManagerListingsInto('manager-listings-home', 'home');
+  renderManagerListingsInto('manager-listings', 'listings');
+  showToast(`Application sent for "${listing.title}" — good luck! 🎉`);
+}
+
+function renderMyApplications() {
+  const el = document.getElementById('emp-applications-list');
+  if (!el) return;
+  if (appliedJobs.size === 0) {
+    el.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px 0;">No applications yet. Browse listings to apply!</div>`;
+    return;
+  }
+  const statusColors = { pending: { bg:'#fef9c3', border:'#ca8a04', text:'#78350f', label:'Pending' }, accepted: { bg:'#d1fae5', border:'#059669', text:'#065f46', label:'Accepted ✓' }, rejected: { bg:'#fee2e2', border:'#dc2626', text:'#991b1b', label:'Rejected' } };
+  el.innerHTML = [...appliedJobs.entries()].map(([listingId, data]) => {
+    const listing = managerListings.find(l => l.id === listingId);
+    if (!listing) return '';
+    const s = statusColors[data.status] || statusColors.pending;
+    return `
+      <div style="display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid var(--border); border-radius:10px; margin-bottom:8px; background:var(--surface);">
+        <div style="flex:1; min-width:0;">
+          <div style="font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${listing.title}</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-top:2px;">${listing.company} &nbsp;·&nbsp; ${listing.commitment} bandwidth</div>
+        </div>
+        <span style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:${s.bg}; border:1px solid ${s.border}; color:${s.text}; white-space:nowrap;">${s.label}</span>
+        <button onclick="withdrawApplication(${listingId})" style="background:none; border:1px solid var(--border); border-radius:8px; padding:5px 12px; font-size:12px; font-weight:600; color:var(--text-secondary); cursor:pointer; white-space:nowrap;" onmouseover="this.style.borderColor='var(--mauve-400)';this.style.color='var(--mauve-700)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-secondary)'">Withdraw</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function withdrawApplication(listingId) {
+  const listing = managerListings.find(l => l.id === listingId);
+  if (listing) listing.applicants = listing.applicants.filter(a => a.id !== 'shivani');
+  appliedJobs.delete(listingId);
+  renderMyApplications();
+  renderJobs();
+  renderManagerListingsInto('manager-listings-home', 'home');
+  renderManagerListingsInto('manager-listings', 'listings');
+  showToast('Application withdrawn.');
+}
+
+function setApplicantStatus(listingId, applicantId, status) {
+  const listing = managerListings.find(l => l.id === listingId);
+  if (!listing) return;
+  const app = listing.applicants.find(a => a.id === applicantId);
+  if (!app) return;
+  app.status = status;
+  // Sync to appliedJobs if it's Shivani
+  if (applicantId === 'shivani' && appliedJobs.has(listingId)) {
+    appliedJobs.get(listingId).status = status;
+  }
+  renderManagerListingsInto('manager-listings-home', 'home');
+  renderManagerListingsInto('manager-listings', 'listings');
+  // Re-open the panel that was open
+  const panels = document.querySelectorAll('[id^="applicants-"]');
+  panels.forEach(p => { if (p.style.display !== 'none') p.style.display = 'block'; });
+  showToast(`Applicant ${status === 'accepted' ? 'accepted ✓' : 'rejected'}.`);
+}
+
+function openApplicantProfile(listingId, applicantId) {
+  const listing = managerListings.find(l => l.id === listingId);
+  if (!listing) return;
+  const app = listing.applicants.find(a => a.id === applicantId);
+  if (!app) return;
+  const initials = app.name.split(' ').map(n => n[0]).join('');
+  const avg = app.crossFunctionalRatings.reduce((s,r)=>s+r.rating,0) / app.crossFunctionalRatings.length;
+  const tm = teamMembers.find(t => t.name === app.name);
+  const statusColors = { pending: { bg:'#fef9c3', border:'#ca8a04', text:'#78350f', label:'Pending' }, accepted: { bg:'#d1fae5', border:'#059669', text:'#065f46', label:'Accepted ✓' }, rejected: { bg:'#fee2e2', border:'#dc2626', text:'#991b1b', label:'Rejected' } };
+  const s = statusColors[app.status || 'pending'];
+  document.getElementById('applicant-profile-body').innerHTML = `
+    <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+      <div style="width:60px; height:60px; border-radius:50%; background:var(--mauve-500); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:20px; flex-shrink:0;">${initials}</div>
+      <div>
+        <div style="font-weight:800; font-size:20px; margin-bottom:2px;">${app.name}</div>
+        <div style="font-size:14px; color:var(--text-secondary);">${app.title}</div>
+        <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">Manager: ${app.manager}</div>
+      </div>
+      <span style="margin-left:auto; font-size:12px; font-weight:700; padding:4px 12px; border-radius:20px; background:${s.bg}; border:1px solid ${s.border}; color:${s.text};">${s.label}</span>
+    </div>
+    ${app.message ? `<div style="background:var(--mauve-50); border:1px solid var(--mauve-200); border-radius:10px; padding:14px 16px; margin-bottom:20px;"><div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px;">Application Message</div><div style="font-size:14px; color:var(--text-primary); line-height:1.6;">${app.message}</div></div>` : ''}
+    <div style="margin-bottom:20px;">
+      <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px;">Bandwidth Available</div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div style="flex:1; height:8px; background:var(--mauve-100); border-radius:4px; overflow:hidden;"><div style="height:100%; width:${app.bandwidth}%; background:${app.bandwidth>=75?'var(--success)':'var(--mauve-500)'}; border-radius:4px;"></div></div>
+        <span style="font-weight:700; font-size:14px; color:${app.bandwidth>=75?'var(--success)':'var(--mauve-700)'}; min-width:36px;">${app.bandwidth}%</span>
+      </div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px;">Manager Vouched Skills <span style="color:var(--mauve-500); font-weight:500; text-transform:none; letter-spacing:0;">by ${app.manager}</span></div>
+      <div style="display:flex; flex-wrap:wrap; gap:6px;">${app.managerEndorsedSkills.map(s=>`<span style="background:var(--mauve-50); border:1px solid var(--mauve-300); color:var(--mauve-700); padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600;">✓ ${s}</span>`).join('')}</div>
+    </div>
+    <div style="margin-bottom:20px;">
+      <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px;">Cross-Functional Ratings &nbsp;<span style="color:var(--mauve-500); font-weight:600; font-size:12px; text-transform:none; letter-spacing:0;">${avg.toFixed(1)} / 5 avg</span></div>
+      <div style="display:flex; flex-direction:column; gap:5px;">${app.crossFunctionalRatings.map(r=>`<div style="display:flex; justify-content:space-between; align-items:center; background:var(--mauve-50); padding:7px 12px; border-radius:8px; font-size:13px;"><span style="color:var(--text-secondary);">${r.project}</span><span>${'⭐'.repeat(r.rating)} <span style="color:var(--text-muted); font-size:11px;">by ${r.reviewer}</span></span></div>`).join('')}</div>
+    </div>
+    ${tm && tm.devGoals.length ? `
+      <div style="margin-bottom:20px;">
+        <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px;">🎯 Development Goals</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">${tm.devGoals.map(g=>`<div style="background:linear-gradient(135deg,var(--mauve-50),var(--surface)); border:1px solid var(--mauve-200); border-radius:8px; padding:10px 12px;"><div style="font-weight:700; font-size:13px; margin-bottom:2px;">${g.title}</div><div style="font-size:12px; color:var(--text-secondary); margin-bottom:5px;">${g.desc}</div><div style="display:flex; gap:8px; align-items:center;"><span style="font-size:11px; color:var(--text-muted);">📅 ${g.targetDate}</span><span style="font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; background:${g.status==='in-progress'?'#d1fae5':'var(--mauve-100)'}; color:${g.status==='in-progress'?'#065f46':'var(--mauve-700)'};">${g.status==='in-progress'?'In Progress':'Not Started'}</span></div></div>`).join('')}</div>
+      </div>
+    ` : ''}
+    <div style="border-top:1px solid var(--border); padding-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+      <button onclick="setApplicantStatus(${listingId},'${applicantId}','rejected'); closeModal('applicant-profile');" style="padding:9px 20px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; background:${(app.status||'pending')==='rejected'?'#dc2626':'white'}; color:${(app.status||'pending')==='rejected'?'white':'#dc2626'}; border:1.5px solid #dc2626;">✗ Reject</button>
+      <button onclick="setApplicantStatus(${listingId},'${applicantId}','accepted'); closeModal('applicant-profile');" style="padding:9px 20px; border-radius:8px; font-weight:700; font-size:13px; cursor:pointer; background:${(app.status||'pending')==='accepted'?'#059669':'white'}; color:${(app.status||'pending')==='accepted'?'white':'#059669'}; border:1.5px solid #059669;">✓ Accept</button>
+    </div>
+  `;
+  openModal('applicant-profile');
+}
+
+function renderEmpPastProjects() {
+  const el = document.getElementById('emp-past-projects-list');
+  el.innerHTML = managerReviews.map(m => `
+    <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:var(--shadow-sm);">
+      <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+        <div style="width:44px; height:44px; border-radius:50%; background:var(--mauve-400); color:white; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">${m.initials}</div>
+        <div style="flex:1;">
+          <div style="font-weight:700; font-size:15px;">${m.name}</div>
+          <div style="font-size:12px; color:var(--text-secondary);">${m.title}</div>
+        </div>
+        ${m.rating ? `<div style="background:var(--mauve-100); padding:4px 10px; border-radius:20px; font-size:13px; font-weight:700; color:var(--mauve-700);">${'⭐'.repeat(m.rating)}</div>` : ''}
+      </div>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">📁 ${m.project}</div>
+      <div style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">📅 ${m.duration}</div>
+      ${m.review ? `<div style="background:var(--mauve-50); border-left:3px solid var(--mauve-400); padding:10px 12px; border-radius:0 6px 6px 0; font-size:13px; color:var(--text-secondary); margin-bottom:12px; font-style:italic;">"${m.review}"</div>` : ''}
+      <button onclick="openManagerReviewModal('${m.id}')" style="width:100%; padding:9px; border:1.5px solid var(--mauve-400); border-radius:8px; background:${m.rating ? 'var(--mauve-100)' : 'var(--surface)'}; color:var(--mauve-700); font-weight:600; font-size:13px; cursor:pointer; transition:all .2s;" onmouseover="this.style.background='var(--mauve-100)'" onmouseout="this.style.background='${m.rating ? 'var(--mauve-100)' : 'var(--surface)'}'">
+        ${m.rating ? '✏️ Edit Review' : '⭐ Write Review'}
+      </button>
+    </div>
+  `).join('');
+}
+
+function setMgrStar(n) {
+  selectedMgrStar = n;
+  document.querySelectorAll('#mgr-star-rating span').forEach(s => {
+    s.textContent = parseInt(s.dataset.val) <= n ? '⭐' : '☆';
+  });
+}
+
+let selectedDevGoalEmployeeId = null;
+
+function openDevGoalsPanel(employeeId) {
+  selectedDevGoalEmployeeId = employeeId;
+  const emp = teamMembers.find(e => e.id === employeeId);
+  document.getElementById('dev-goals-employee-name').textContent = emp.name + ' · ' + emp.title;
+  document.getElementById('goal-title').value = '';
+  document.getElementById('goal-desc').value = '';
+  document.getElementById('goal-target').value = '';
+  renderDevGoalsInModal(emp);
+  openModal('dev-goals');
+}
+
+function renderDevGoalsInModal(emp) {
+  const el = document.getElementById('dev-goals-existing');
+  if (!emp.devGoals.length) {
+    el.innerHTML = `<div style="font-size:13px; color:var(--text-muted); padding:10px 0; border-bottom:1px solid var(--border); margin-bottom:4px;">No goals set yet.</div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">Current Goals</div>
+    <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:4px;">
+      ${emp.devGoals.map(g => `
+        <div style="background:var(--mauve-50); border:1px solid var(--mauve-200); border-radius:8px; padding:10px 12px; position:relative;">
+          <div style="font-weight:700; font-size:13px; margin-bottom:2px; padding-right:24px;">${g.title}</div>
+          <div style="font-size:12px; color:var(--text-secondary); margin-bottom:6px;">${g.desc}</div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="font-size:11px; color:var(--text-muted);">📅 ${g.targetDate}</span>
+            <select onchange="updateGoalStatus('${emp.id}','${g.id}',this.value)" style="font-size:11px; border:1px solid var(--border); border-radius:6px; padding:2px 6px; background:var(--surface); color:var(--text-primary); cursor:pointer;">
+              <option value="not-started" ${g.status === 'not-started' ? 'selected' : ''}>Not Started</option>
+              <option value="in-progress" ${g.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+              <option value="completed" ${g.status === 'completed' ? 'selected' : ''}>Completed</option>
+            </select>
+            <button onclick="deleteDevGoal('${emp.id}','${g.id}')" style="margin-left:auto; background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:14px; line-height:1;" title="Remove goal">✕</button>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function submitDevGoal() {
+  const title = document.getElementById('goal-title').value.trim();
+  const desc = document.getElementById('goal-desc').value.trim();
+  const target = document.getElementById('goal-target').value.trim();
+  if (!title) { showToast('Please enter a goal title.'); return; }
+  const emp = teamMembers.find(e => e.id === selectedDevGoalEmployeeId);
+  emp.devGoals.push({ id: 'g' + Date.now(), title, desc, targetDate: target || 'TBD', status: 'not-started' });
+  document.getElementById('goal-title').value = '';
+  document.getElementById('goal-desc').value = '';
+  document.getElementById('goal-target').value = '';
+  renderDevGoalsInModal(emp);
+  renderManagerProjects();
+  renderEmpDevGoals();
+  showToast(`Goal added for ${emp.name}`);
+}
+
+function deleteDevGoal(empId, goalId) {
+  const emp = teamMembers.find(e => e.id === empId);
+  emp.devGoals = emp.devGoals.filter(g => g.id !== goalId);
+  renderDevGoalsInModal(emp);
+  renderManagerProjects();
+  renderEmpDevGoals();
+}
+
+function updateGoalStatus(empId, goalId, status) {
+  const emp = teamMembers.find(e => e.id === empId);
+  const goal = emp.devGoals.find(g => g.id === goalId);
+  if (goal) { goal.status = status; renderEmpDevGoals(); }
+}
+
+function renderEmpDevGoals() {
+  const el = document.getElementById('emp-dev-goals-list');
+  if (!el) return;
+  const shivani = teamMembers.find(e => e.id === 'tm1');
+  if (!shivani.devGoals.length) {
+    el.innerHTML = `<div style="font-size:13px; color:var(--text-muted);">No development goals set yet.</div>`;
+    return;
+  }
+  const statusColors = { 'not-started': { bg: 'var(--mauve-100)', text: 'var(--mauve-700)' }, 'in-progress': { bg: '#d1fae5', text: '#065f46' }, 'completed': { bg: '#dbeafe', text: '#1e40af' } };
+  const statusLabels = { 'not-started': 'Not Started', 'in-progress': 'In Progress', 'completed': 'Completed ✓' };
+  el.innerHTML = shivani.devGoals.map(g => {
+    const sc = statusColors[g.status] || statusColors['not-started'];
+    return `
+      <div style="border:1px solid var(--mauve-200); border-radius:10px; padding:12px 14px; margin-bottom:10px; background:var(--surface);">
+        <div style="font-weight:700; font-size:14px; margin-bottom:4px;">${g.title}</div>
+        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:8px;">${g.desc}</div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <span style="font-size:12px; color:var(--text-muted);">📅 ${g.targetDate}</span>
+          <span style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:${sc.bg}; color:${sc.text};">${statusLabels[g.status]}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openManagerReviewModal(id) {
+  selectedManagerReviewId = id;
+  const m = managerReviews.find(r => r.id === id);
+  document.getElementById('mgr-review-name').textContent = m.name + ' · ' + m.project;
+  selectedMgrStar = m.rating || 0;
+  setMgrStar(selectedMgrStar);
+  document.getElementById('mgr-review-text').value = m.review || '';
+  openModal('manager-review');
+}
+
+function submitManagerReview() {
+  if (!selectedMgrStar) { alert('Please select a star rating.'); return; }
+  const m = managerReviews.find(r => r.id === selectedManagerReviewId);
+  m.rating = selectedMgrStar;
+  m.review = document.getElementById('mgr-review-text').value.trim();
+  closeModal('manager-review');
+  renderEmpPastProjects();
+}
+
+function openModal(modal) {
+  document.getElementById(`modal-${modal}`).classList.add('open');
+}
+
+function closeModal(modal) {
+  document.getElementById(`modal-${modal}`).classList.remove('open');
+}
+
+function createListing() {
+  const title = document.getElementById('listing-title').value.trim();
+  const desc = document.getElementById('listing-desc').value.trim();
+  if (!title || !desc) { showToast('Please fill in the title and description.'); return; }
+
+  const skillsRaw = document.getElementById('listing-skills').value;
+  const skills = skillsRaw.split(',').map(s => s.trim()).filter(Boolean);
+  const company = document.getElementById('listing-company').value.trim() || 'General';
+  const position = document.getElementById('listing-position').value;
+  const location = document.getElementById('listing-location').value;
+  const commitment = document.getElementById('listing-commitment').value;
+
+  const newListing = {
+    id: Date.now(),
+    title, desc, skills, company, position, location, commitment,
+    manager: 'Jane Doe',
+    matchScore: Math.floor(Math.random() * 20) + 70, // 70-89%
+    applicants: []
+  };
+  managerListings.push(newListing);
+  filteredJobs = [...managerListings];
+
+  // Clear form
+  ['listing-title','listing-desc','listing-company','listing-skills'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+
+  closeModal('add-listing');
+  renderManagerListingsInto('manager-listings-home', 'home');
+  renderManagerListingsInto('manager-listings', 'listings');
+  renderJobs();
+  showToast(`"${title}" is now live and visible to employees!`);
+}
+
+function buildListingHTML(listing, context) {
+  const panelId = `applicants-${listing.id}-${context}`;
+  return `
+    <div style="border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--surface); margin-bottom:12px;">
+      <div style="padding:20px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px;">
+          <div style="flex:1;">
+            <div style="font-weight:700; font-size:16px; margin-bottom:4px;">${listing.title}</div>
+            <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;">${listing.desc}</div>
+            <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+              ${listing.skills.map(s => `<span style="background:var(--mauve-100); color:var(--mauve-700); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600;">${s}</span>`).join('')}
+            </div>
+            <div style="font-size:12px; color:var(--text-muted);">📍 ${listing.location} &nbsp;·&nbsp; ⏱ ${listing.commitment} bandwidth</div>
+          </div>
+          ${listing.applicants.length > 0 ? `
+            <button onclick="toggleApplicants('${panelId}')" id="btn-${panelId}" style="background:var(--mauve-600); color:white; border:none; padding:8px 16px; border-radius:8px; font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap; flex-shrink:0;">
+              ${listing.applicants.length} Applicants ▾
+            </button>
+          ` : `<span style="font-size:13px; color:var(--text-muted); flex-shrink:0; align-self:center;">No applicants yet</span>`}
+        </div>
+      </div>
+      ${listing.applicants.length > 0 ? `
+        <div id="${panelId}" style="display:none; border-top:1px solid var(--border);">
+          <div style="padding:12px 20px 6px; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px;">Applicants</div>
+          ${listing.applicants.map(app => {
+            const avg = app.crossFunctionalRatings.reduce((s,r)=>s+r.rating,0) / app.crossFunctionalRatings.length;
+            return `
+              <div style="padding:16px 20px; border-top:1px solid var(--border);">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                  <div style="width:36px; height:36px; border-radius:50%; background:var(--mauve-400); color:white; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0;">${app.name.split(' ').map(n=>n[0]).join('')}</div>
+                  <div>
+                    <div style="font-weight:700; font-size:14px; cursor:pointer; color:var(--mauve-700); text-decoration:underline; text-underline-offset:2px;" onclick="openApplicantProfile(${listing.id},'${app.id}')">${app.name}</div>
+                    <div style="font-size:12px; color:var(--text-secondary);">${app.title}</div>
+                  </div>
+                  <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
+                    ${(() => {
+                      const st = app.status || 'pending';
+                      const acceptStyle = st === 'accepted'
+                        ? 'background:#059669;color:white;border:1.5px solid #059669;'
+                        : 'background:white;color:#059669;border:1.5px solid #059669;';
+                      const rejectStyle = st === 'rejected'
+                        ? 'background:#dc2626;color:white;border:1.5px solid #dc2626;'
+                        : 'background:white;color:#dc2626;border:1.5px solid #dc2626;';
+                      return `
+                        <button onclick="setApplicantStatus(${listing.id},'${app.id}','rejected')" style="${rejectStyle} padding:4px 10px; border-radius:7px; font-weight:700; font-size:12px; cursor:pointer;">✗</button>
+                        <button onclick="setApplicantStatus(${listing.id},'${app.id}','accepted')" style="${acceptStyle} padding:4px 10px; border-radius:7px; font-weight:700; font-size:12px; cursor:pointer;">✓</button>
+                      `;
+                    })()}
+                    <div style="text-align:right;">
+                      <div style="font-size:13px; font-weight:700; color:var(--mauve-700);">${avg.toFixed(1)} / 5</div>
+                      <div style="font-size:11px; color:var(--text-muted);">avg cross-functional</div>
+                    </div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; margin-top:4px; margin-bottom:10px;">
+                  <span style="font-size:11px; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:.3px;">Bandwidth</span>
+                  <div style="flex:1; height:6px; background:var(--mauve-100); border-radius:3px; overflow:hidden;">
+                    <div style="height:100%; width:${app.bandwidth}%; background:${app.bandwidth >= 75 ? 'var(--success)' : app.bandwidth >= 40 ? 'var(--mauve-500)' : 'var(--mauve-300)'}; border-radius:3px; transition:width .3s;"></div>
+                  </div>
+                  <span style="font-size:12px; font-weight:700; color:${app.bandwidth >= 75 ? 'var(--success)' : 'var(--mauve-700)'}; min-width:32px; text-align:right;">${app.bandwidth}%</span>
+                </div>
+                <div style="margin-bottom:10px;">
+                  <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px;">Manager Vouched Skills &nbsp;<span style="color:var(--mauve-500); font-weight:500; text-transform:none; letter-spacing:0;">by ${app.manager}</span></div>
+                  <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                    ${app.managerEndorsedSkills.map(s => `<span style="background:var(--mauve-50); border:1px solid var(--mauve-300); color:var(--mauve-700); padding:3px 10px; border-radius:20px; font-size:12px; font-weight:600;">✓ ${s}</span>`).join('')}
+                  </div>
+                </div>
+                <div>
+                  <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px;">Cross-Functional Project Ratings</div>
+                  <div style="display:flex; flex-direction:column; gap:4px;">
+                    ${app.crossFunctionalRatings.map(r => `
+                      <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; background:var(--mauve-50); padding:5px 10px; border-radius:6px;">
+                        <span style="color:var(--text-secondary);">${r.project}</span>
+                        <span style="display:flex; align-items:center; gap:6px;"><span style="color:var(--mauve-700); font-weight:700;">${'⭐'.repeat(r.rating)}</span><span style="color:var(--text-muted);">by ${r.reviewer}</span></span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+                ${(() => {
+                  const tm = teamMembers.find(t => t.name === app.name);
+                  if (!tm || !tm.devGoals.length) return '';
+                  return `
+                    <div style="margin-top:12px;">
+                      <div style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.4px; margin-bottom:6px;">🎯 Development Goals</div>
+                      <div style="display:flex; flex-direction:column; gap:6px;">
+                        ${tm.devGoals.map(g => `
+                          <div style="background:linear-gradient(135deg,var(--mauve-50),var(--surface)); border:1px solid var(--mauve-200); border-radius:8px; padding:9px 12px;">
+                            <div style="font-weight:700; font-size:13px; margin-bottom:2px;">${g.title}</div>
+                            <div style="font-size:12px; color:var(--text-secondary); margin-bottom:5px;">${g.desc}</div>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                              <span style="font-size:11px; color:var(--text-muted);">📅 ${g.targetDate}</span>
+                              <span style="font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; background:${g.status === 'in-progress' ? '#d1fae5' : 'var(--mauve-100)'}; color:${g.status === 'in-progress' ? '#065f46' : 'var(--mauve-700)'};">${g.status === 'in-progress' ? 'In Progress' : 'Not Started'}</span>
+                            </div>
+                          </div>
+                        `).join('')}
+                      </div>
+                    </div>
+                  `;
+                })()}
+              </div>
+            `;
+          }).join('')}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderManagerListingsInto(containerId, context) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.innerHTML = managerListings.map(l => buildListingHTML(l, context)).join('');
+}
+
+function renderManagerListings() {
+  renderManagerListingsInto('manager-listings', 'listings');
+}
+
+function applicantAvgRating(applicants) {
+  if (!applicants.length) return 0;
+  const total = applicants.reduce((s, a) => s + a.crossFunctionalRatings.reduce((rs, r) => rs + r.rating, 0) / a.crossFunctionalRatings.length, 0);
+  return (total / applicants.length).toFixed(1);
+}
+
+function toggleApplicants(panelId) {
+  const panel = document.getElementById(panelId);
+  const btn = document.getElementById(`btn-${panelId}`);
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  const idPart = panelId.replace('applicants-', '').replace(/-home$/, '').replace(/-listings$/, '');
+  const listing = managerListings.find(l => String(l.id) === idPart);
+  if (listing) btn.textContent = isOpen ? `${listing.applicants.length} Applicants ▾` : 'Collapse ▴';
+}
+
+function renderManagerProjects() {
+  const orgChart = document.getElementById('org-chart');
+  orgChart.innerHTML = `
+    <div class="org-box" style="background: var(--mauve-200);">
+      <div class="org-name">Jane Doe</div>
+      <div class="org-title">Senior Manager, Product</div>
+    </div>
+    <div style="margin-left: 20px; border-left: 2px solid var(--mauve-300); padding-left: 16px;">
+      ${teamMembers.map(emp => `
+        <div class="org-box" style="transition: all .2s;">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <div style="flex:1;">
+              <div class="org-name" style="color: var(--mauve-700);">${emp.name}</div>
+              <div class="org-title">${emp.title}</div>
+              ${emp.devGoals.length ? `<div style="font-size:11px; color:var(--mauve-600); margin-top:3px;">🎯 ${emp.devGoals.length} development goal${emp.devGoals.length > 1 ? 's' : ''}</div>` : ''}
+            </div>
+            <div style="display:flex; gap:6px; flex-shrink:0;">
+              <button onclick="openSkillsEndorsePanel('${emp.id}')" style="font-size:11px; color:var(--mauve-600); font-weight:600; background:var(--mauve-100); padding:6px 12px; border-radius:20px; border:1px solid var(--mauve-300); cursor:pointer; transition:all .15s;" onmouseover="this.style.background='var(--mauve-200)'" onmouseout="this.style.background='var(--mauve-100)'">View & Vouch</button>
+              <button onclick="openDevGoalsPanel('${emp.id}')" style="font-size:11px; color:white; font-weight:600; background:var(--mauve-600); padding:6px 12px; border-radius:20px; border:none; cursor:pointer; transition:all .15s;" onmouseover="this.style.background='var(--mauve-700)'" onmouseout="this.style.background='var(--mauve-600)'">🎯 Dev Goals</button>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  const projectsList = document.getElementById('manager-projects-list');
+  const grouped = {};
+  previousTeamMembers.forEach(member => {
+    if (!grouped[member.project]) grouped[member.project] = [];
+    grouped[member.project].push(member);
+  });
+
+  let html = '';
+  Object.entries(grouped).forEach(([project, members]) => {
+    const reviewed = members.filter(m => m.rating).length;
+    const projectKey = project.replace(/\s+/g, '-');
+    html += `
+      <div style="margin-bottom: 16px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface);">
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 16px 20px; cursor:pointer;" onclick="toggleProjectMembers('${projectKey}')">
+          <div>
+            <div style="font-weight:700; font-size:15px;">${project}</div>
+            <div style="font-size:13px; color:var(--text-secondary); margin-top:2px;">${members.length} collaborators · ${reviewed} reviewed</div>
+          </div>
+          <button class="listing-action" id="toggle-btn-${projectKey}" style="background:var(--mauve-100); color:var(--mauve-700); border:none; padding:6px 14px; border-radius:6px; font-weight:600; cursor:pointer;">Show Team ▾</button>
+        </div>
+        <div id="project-members-${projectKey}" style="display:none; border-top:1px solid var(--border);">
+          <div style="padding: 10px 20px 6px; font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.5px;">Click a name to review</div>
+          ${members.map(member => {
+            const hasReview = member.rating && member.review;
+            return `
+              <div class="listing-item" onclick="openReviewModalForMember('${member.id}', '${member.name}')" style="border-radius:0; border:none; border-bottom:1px solid var(--border); cursor:pointer; transition: background .15s;" onmouseover="this.style.background='var(--mauve-50)'" onmouseout="this.style.background=''">
+                <div class="listing-info">
+                  <div style="font-weight:600; font-size:14px; color: var(--mauve-700);">${member.name}</div>
+                  <div style="font-size:12px; color:var(--text-secondary);">${member.title}${hasReview ? ` · ⭐ ${member.rating} stars` : ' · Not yet reviewed'}</div>
+                </div>
+                <span style="font-size:12px; color:${hasReview ? 'var(--success)' : 'var(--mauve-600)'}; font-weight:600;">${hasReview ? '✓ Reviewed' : 'Rate & Review →'}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  });
+
+  projectsList.innerHTML = html;
+}
+
+function toggleProjectMembers(projectKey) {
+  const panel = document.getElementById(`project-members-${projectKey}`);
+  const btn = document.getElementById(`toggle-btn-${projectKey}`);
+  if (panel.style.display === 'none') {
+    panel.style.display = 'block';
+    btn.textContent = 'Hide Team ▴';
+  } else {
+    panel.style.display = 'none';
+    btn.textContent = 'Show Team ▾';
+  }
+}
+
+function openSkillsEndorsePanel(employeeId) {
+  const emp = teamMembers.find(e => e.id === employeeId);
+  if (!emp) return;
+  selectedEndorseEmployeeId = employeeId;
+
+  document.getElementById('skills-panel-name').textContent = emp.name;
+  document.getElementById('skills-panel-title').textContent = emp.title;
+  document.getElementById('skills-panel-initials').textContent = emp.name.substring(0, 2).toUpperCase();
+
+  const skillsContainer = document.getElementById('skills-panel-list');
+  skillsContainer.innerHTML = emp.skills.map(skill => {
+    const alreadyEndorsed = emp.vouchedSkills.includes(skill);
+    return `
+      <label style="display:flex; align-items:center; gap:10px; padding:10px 12px; border:1px solid ${alreadyEndorsed ? 'var(--mauve-400)' : 'var(--border)'}; border-radius:8px; cursor:pointer; background:${alreadyEndorsed ? 'var(--mauve-50)' : 'var(--surface)'}; transition: all .15s;" onmouseover="if(!${alreadyEndorsed})this.style.borderColor='var(--mauve-300)'" onmouseout="if(!${alreadyEndorsed})this.style.borderColor='var(--border)'">
+        <input type="checkbox" value="${skill}" ${alreadyEndorsed ? 'checked disabled' : ''} style="accent-color: var(--mauve-600); width:16px; height:16px;">
+        <span style="font-size:14px; font-weight:500; flex:1;">${skill}</span>
+        ${alreadyEndorsed ? '<span style="font-size:11px; color:var(--mauve-600); font-weight:600;">✓ Vouched</span>' : ''}
+      </label>
+    `;
+  }).join('');
+
+  openModal('skills-endorse');
+}
+
+let selectedReviewMemberId = null;
+
+function openReviewModal(employeeName) {
+  document.getElementById('review-employee-name').textContent = `Review ${employeeName}'s performance`;
+  openModal('review');
+}
+
+function openReviewModalForMember(memberId, memberName) {
+  selectedReviewMemberId = memberId;
+  const member = previousTeamMembers.find(m => m.id === memberId);
+  document.getElementById('review-employee-name').textContent = `Review ${memberName}'s performance`;
+  if (member && member.rating) {
+    document.getElementById('review-rating').value = member.rating;
+    document.getElementById('review-text').value = member.review;
+  }
+  openModal('review');
+}
+
+function submitReview() {
+  const rating = document.getElementById('review-rating').value;
+  const text = document.getElementById('review-text').value;
+  if (text.trim()) {
+    if (selectedReviewMemberId) {
+      const member = previousTeamMembers.find(m => m.id === selectedReviewMemberId);
+      if (member) {
+        member.rating = rating;
+        member.review = text;
+        alert('Review submitted with ' + rating + ' stars!');
+        renderManagerProjects();
+      }
+    } else {
+      alert('Review submitted with ' + rating + ' stars!');
+    }
+    closeModal('review');
+    document.getElementById('review-text').value = '';
+    selectedReviewMemberId = null;
+  }
+}
+
+
+function submitSkillEndorsements() {
+  const employee = teamMembers.find(e => e.id === selectedEndorseEmployeeId);
+  if (!employee) return;
+
+  const checkboxes = document.querySelectorAll('#skills-panel-list input[type="checkbox"]:not(:disabled):checked');
+  const newSkills = Array.from(checkboxes).map(cb => cb.value).filter(s => !employee.vouchedSkills.includes(s));
+
+  if (newSkills.length === 0) {
+    closeModal('skills-endorse');
+    return;
+  }
+
+  newSkills.forEach(skill => employee.vouchedSkills.push(skill));
+  closeModal('skills-endorse');
+  renderManagerProjects();
+  showToast(`Vouched for ${newSkills.length} skill${newSkills.length > 1 ? 's' : ''} for ${employee.name}`);
+}
+
+function uploadCV() {
+  const fileInput = document.getElementById('cv-input');
+  if (fileInput.files.length > 0) {
+    const fileName = fileInput.files[0].name;
+    alert(`Resume "${fileName}" uploaded! Auto-detecting information...\n\nDetected:\n• Job Position: Senior Product Designer\n• Skills: UX Design, Figma, User Research, Prototyping\n• Experience: 5 years`);
+
+    // Auto-fill detected information
+    document.getElementById('job-title').value = 'Senior Product Designer';
+    document.getElementById('department').value = 'Product';
+    document.getElementById('experience').value = '5';
+
+    // Add detected skills
+    const detectedSkillsList = ['UX Design', 'Figma', 'User Research', 'Prototyping'];
+    let skillsHTML = '';
+    detectedSkillsList.forEach(skill => {
+      skillsHTML += `<span class="skill-badge">${skill} <span onclick="removeSkill('${skill}')" style="margin-left: 6px; cursor: pointer;">✕</span></span>`;
+    });
+    document.getElementById('all-skills').innerHTML = skillsHTML;
+  }
+}
+
+function addSkill(event) {
+  if (event.key === 'Enter') {
+    addSkillBtn();
+  }
+}
+
+function addSkillBtn() {
+  const skillInput = document.getElementById('skill-input');
+  const skill = skillInput.value.trim();
+
+  if (skill === '') {
+    alert('Please enter a skill');
+    return;
+  }
+
+  const skillsList = document.getElementById('all-skills');
+  const newSkill = document.createElement('span');
+  newSkill.className = 'skill-badge';
+  newSkill.innerHTML = `${skill} <span onclick="removeSkill('${skill}')" style="margin-left: 6px; cursor: pointer;">✕</span>`;
+  skillsList.appendChild(newSkill);
+  skillInput.value = '';
+  skillInput.focus();
+}
+
+function removeSkill(skill) {
+  const skillsList = document.getElementById('all-skills');
+  const skills = skillsList.querySelectorAll('.skill-badge');
+  skills.forEach(s => {
+    if (s.textContent.includes(skill)) {
+      s.remove();
+    }
+  });
+}
+
+function saveProfile() {
+  const jobTitle = document.getElementById('job-title').value;
+  const department = document.getElementById('department').value;
+  const interests = document.getElementById('interests').value;
+  const certifications = document.getElementById('certifications').value;
+
+  if (!jobTitle || !department) {
+    alert('Please fill in at least Job Title and Department');
+    return;
+  }
+
+  const skills = Array.from(document.getElementById('all-skills').querySelectorAll('.skill-badge'))
+    .map(s => s.textContent.replace('✕', '').trim());
+
+  alert(`Profile saved successfully!\n\n✓ Position: ${jobTitle}\n✓ Department: ${department}\n✓ Skills: ${skills.length} added\n✓ Interests: ${interests ? 'Added' : 'Not filled'}\n✓ Certifications: ${certifications ? 'Added' : 'Not filled'}`);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-toggle-btn').textContent = isDark ? '🌙' : '☀️';
+}
+
+// ── Login ─────────────────────────────────────────────
+let loginPersona = null;
+
+function selectLoginPersona(p) {
+  loginPersona = p;
+  document.getElementById('login-card-employee').classList.toggle('selected', p === 'employee');
+  document.getElementById('login-card-manager').classList.toggle('selected', p === 'manager');
+  document.getElementById('login-submit-btn').disabled = false;
+}
+
+function submitLogin() {
+  if (!loginPersona) return;
+  doLogin(loginPersona);
+}
+
+function loginWithSSO() {
+  // SSO auto-detects based on selected persona (defaults to employee if none picked)
+  doLogin(loginPersona || 'employee');
+}
+
+function doLogin(p) {
+  persona = p;
+  // Hide login, show app
+  document.getElementById('login-page').classList.remove('active');
+  document.getElementById('app-root').classList.remove('login-mode');
+  // Sync persona buttons
+  document.querySelectorAll('.persona-btn').forEach(b => b.classList.remove('active'));
+  const targetBtn = p === 'employee'
+    ? document.querySelector('.persona-btn:first-child')
+    : document.querySelector('.persona-btn:last-child');
+  if (targetBtn) targetBtn.classList.add('active');
+  updateNavLinks();
+  goToPage(p === 'employee' ? 'emp-home' : 'mgr-home');
+}
+
+function logout() {
+  persona = null;
+  loginPersona = null;
+  // Reset login card selections
+  document.getElementById('login-card-employee').classList.remove('selected');
+  document.getElementById('login-card-manager').classList.remove('selected');
+  document.getElementById('login-submit-btn').disabled = true;
+  // Show login, hide app
+  document.getElementById('app-root').classList.add('login-mode');
+  document.getElementById('login-page').classList.add('active');
+}
+
+// ── Init ──────────────────────────────────────────────
+updateNavLinks();
+renderJobs();
+  </script>
+  <div class="toast" id="toast"></div>
+</body>
+</html>
